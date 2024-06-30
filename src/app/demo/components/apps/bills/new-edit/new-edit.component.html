@@ -1,0 +1,139 @@
+<div class="p-fluid p-formgrid grid">
+    <div class="field col-12 md:col-4">
+        <label htmlFor="account-name">Account Name</label>
+        <input pInputText id="account-name" type="text" [(ngModel)]="account.name"/>
+    </div>
+    <div class="field col-12 md:col-4">
+        <label htmlFor="url">Url</label>
+        <input pInputText id="url" type="text" [(ngModel)]="account.url"/>
+    </div>
+    <div class="field col-12 md:col-4">
+        <label htmlFor="owner">Owner</label>
+        <p-dropdown [options]="ownerTypes" [(ngModel)]="selectedOwnerType" optionLabel="name" (onChange)="handleDropdownChange($event, 'newAccount.ownerpk')">
+            <ng-template pTemplate="header">
+                <button pButton type="button" icon="pi pi-plus" class="p-button-text" label="Add new owner" (click)="viewAddNewEntity = true"></button>
+            </ng-template>
+            <ng-template pTemplate="selectedItem">
+                <div class="flex align-items-center gap-2" *ngIf="selectedOwnerType">
+                    <div>{{ selectedOwnerType.name }}</div>
+                </div>
+            </ng-template>
+            <ng-template let-owner pTemplate="item">
+                <div class="flex align-items-center gap-2 justify-content-between">
+                    <div>{{ owner.name }}</div>
+                </div>
+            </ng-template>
+        </p-dropdown>
+    </div>
+    <div class="field col-12">
+        <label htmlFor="trans-desc">Transaction Description</label>
+        <input pInputTextarea id="trans-desc" rows="4" [(ngModel)]="billDto.transactiondescription"/>
+    </div>
+    <div class="field col-12 md:col-6">
+        <label htmlFor="due-date">Due Date</label>
+        <input pInputText id="due-date" type="text" [(ngModel)]="billDto.duedate"/>
+    </div>
+    <div class="field col-12 md:col-6">
+        <label htmlFor="last-paid">Last Paid</label>
+        <input pInputText id="last-paid" type="text" [(ngModel)]="bill.lastpaid"/>
+    </div>
+    <div class="field col-12 md:col-6">
+        <label htmlFor="balance">Balance</label>
+        <p-inputGroup class="w-full">
+            <p-inputGroupAddon>$</p-inputGroupAddon>
+            <input pInputText id="balance" type="text" [(ngModel)]="billDto.balance"/>
+        </p-inputGroup>
+    </div>
+    <div class="field col-12 md:col-6">
+        <label htmlFor="payment">Payment</label>
+        <p-inputGroup class="w-full">
+            <p-inputGroupAddon>$</p-inputGroupAddon>
+            <input pInputText id="payment" type="text" [(ngModel)]="billDto.payment"/>
+        </p-inputGroup>
+    </div>
+    <div class="field col-12 md:col-3">
+        <label htmlFor="bill-type">Bill Type</label>
+        <p-dropdown [options]="billTypes" [(ngModel)]="selectedBillType" optionLabel="name" (onChange)="handleDropdownChange($event, 'newBill.typefk')">
+            <ng-template pTemplate="header">
+                <button pButton type="button" icon="pi pi-plus" class="p-button-text" label="Add new bill" (click)="viewAddNewEntity = true"></button>
+            </ng-template>
+            <ng-template pTemplate="selectedItem">
+                <div class="flex align-items-center gap-2" *ngIf="selectedBillType">
+                    <div>{{ selectedBillType.name }}</div>
+                </div>
+            </ng-template>
+            <ng-template let-billType pTemplate="item">
+                <div class="flex align-items-center gap-2 justify-content-between">
+                    <div>{{ billType.name }}</div>
+                </div>
+            </ng-template>
+        </p-dropdown>
+    </div>
+    <div class="field col-12 md:col-3">
+        <label htmlFor="payment-type">Payment Type</label>
+        <p-dropdown [options]="paymentTypes" [(ngModel)]="selectedPaymentType" optionLabel="name" (onChange)="handleDropdownChange($event, 'newBill.paymenttypefk')">
+            <ng-template pTemplate="header">
+                <button pButton type="button" icon="pi pi-plus" class="p-button-text" label="Add new bill" (click)="viewAddNewEntity = true"></button>
+            </ng-template>
+            <ng-template pTemplate="selectedItem">
+                <div class="flex align-items-center gap-2" *ngIf="selectedPaymentType">
+                    <div>{{ selectedPaymentType.name }}</div>
+                </div>
+            </ng-template>
+            <ng-template let-paymentType pTemplate="item">
+                <div class="flex align-items-center gap-2 justify-content-between">
+                    <div>{{ paymentType.name }}</div>
+                </div>
+            </ng-template>
+        </p-dropdown>
+    </div>
+    <div class="field col-12 md:col-3">
+        <label htmlFor="frequency">Frequency</label>
+        <p-dropdown [options]="frequencyTypes" [(ngModel)]="selectedFrequencyType" optionLabel="name" (onChange)="handleDropdownChange($event, 'newBill.frequencyfk')">
+            <ng-template pTemplate="header">
+                <button pButton type="button" icon="pi pi-plus" class="p-button-text" label="Add new bill" (click)="viewAddNewEntity = true"></button>
+            </ng-template>
+            <ng-template pTemplate="selectedItem">
+                <div class="flex align-items-center gap-2" *ngIf="selectedFrequencyType">
+                    <div>{{ selectedFrequencyType.name }}</div>
+                </div>
+            </ng-template>
+            <ng-template let-frequencyType pTemplate="item">
+                <div class="flex align-items-center gap-2 justify-content-between">
+                    <div>{{ frequencyType.name }}</div>
+                </div>
+            </ng-template>
+        </p-dropdown>
+    </div>
+    <div class="field col-12 md:col-3">
+        <label htmlFor="priority">Priority</label>
+        <p-dropdown [options]="priorityTypes" [(ngModel)]="selectedPriorityType" optionLabel="name" (onChange)="handleDropdownChange($event, 'newBill.priorityfk')">
+            <ng-template pTemplate="header">
+                <button pButton type="button" icon="pi pi-plus" class="p-button-text" label="Add new bill" (click)="viewAddNewEntity = true"></button>
+            </ng-template>
+            <ng-template pTemplate="selectedItem">
+                <div class="flex align-items-center gap-2" *ngIf="selectedPriorityType">
+                    <div>{{ selectedPriorityType.name }}</div>
+                </div>
+            </ng-template>
+            <ng-template let-priorityType pTemplate="item">
+                <div class="flex align-items-center gap-2 justify-content-between">
+                    <div>{{ priorityType.name }}</div>
+                </div>
+            </ng-template>
+        </p-dropdown>
+    </div>
+    <div class="field col-12 md:col-2">
+        <label htmlFor="include">Include In Monthly Bills</label>
+        <div>
+            <p-checkbox [(ngModel)]="billDto.isincludedinmonthlypayment" [binary]="true" class="text-900" inputId="include"></p-checkbox>
+        </div>
+    </div>
+</div>
+
+<p-dialog header="Add New" [(visible)]="viewAddNewEntity" [modal]="true" showEffect="fade" [style]="{ width: '15vw' }" [breakpoints]="{ '960px': '75vw' }">
+    <app-add-entity></app-add-entity>
+    <ng-template pTemplate="footer">
+        <button pButton icon="pi pi-check" (click)="saveNewEntity()" label="Save" class="p-button-outlined"></button>
+    </ng-template>
+</p-dialog>

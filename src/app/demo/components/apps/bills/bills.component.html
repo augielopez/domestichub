@@ -1,0 +1,93 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card px-6 py-6">
+            <p-toast></p-toast>
+            <p-toolbar styleClass="mb-4">
+                <ng-template pTemplate="left">
+                    <div class="my-2">
+                        <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success mr-2" (click)="showDialog(null, false)"></button>
+                        <button pButton pRipple label="Edit Types" icon="pi pi-pencil" class="p-button-secondary" (click)="editBillTypes()"></button>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="right">
+                    <div class="my-2">
+                        <button pButton label="Clear" class="p-button-outlined mb-2" icon="pi pi-filter-slash" (click)="clear(dt)" style="margin-right: 8px"></button>
+                        <span class="p-input-icon-left mb-2">
+                            <i class="pi pi-search"></i>
+                            <input pInputText type="text" #filter (input)="onGlobalFilter(dt, $event)" placeholder="Search Keyword" class="w-full" />
+                        </span>
+                    </div>
+                </ng-template>
+            </p-toolbar>
+            <p-toast></p-toast>
+            <p-table #dt
+                     [value]="bills"
+                     [(selection)]="selectedBill"
+                     [paginator]="true"
+                     [rows]="10"
+                     [showCurrentPageReport]="true"
+                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                     [rowsPerPageOptions]="[5, 10, 20]"
+                     dataKey="code"
+                     editMode="row"
+                     [globalFilterFields]="['owner', 'accountname', 'chargetype']"
+                     (onRowSelect)="onRowSelect($event)" (onRowUnselect)="onRowUnselect($event)">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 4rem">
+                            Include
+                        </th>
+                        <th>Owner</th>
+                        <th>Account Name</th>
+                        <th>Charge Type</th>
+                        <th>Payment</th>
+                        <th>Due Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-bill let-editing="editing" let-ri="rowIndex">
+                    <tr>
+                        <td>
+                            <p-tableCheckbox [value]="bill.isincludedinmonthlypayment" [disabled]="true"></p-tableCheckbox>
+                        </td>
+                        <td>
+                            <img [alt]="bill.owner" src="{{ bill.ownerImagePath }}" width="32" style="vertical-align: middle; border-radius: 50%;" />
+                            <span class="ml-1 vertical-align-middle">{{ bill.owner }}</span>
+                        </td>
+                        <td >{{ bill.accountname }}</td>
+                        <td>{{ bill.chargetype }}</td>
+                        <td>${{ bill.payment }}</td>
+                        <td>{{ bill.duedate }}</td>
+                        <td>
+                            <button type="button" pButton pRipple icon="pi pi-pencil" (click)="showDialog(bill, true)" pTooltip="Edit" tooltipPosition="top" class="p-button-rounded p-button-text mr-1"></button>
+                            <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-text mr-1" (click)="deleteSelectedProducts(bill)"></button>
+                            <button type="button" pButton pRipple icon="pi pi-external-link" class="p-button-rounded p-button-text" (click)="onRowSelect(bill)" pTooltip="Go to website!"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<p-confirmDialog
+    header="Confirmation"
+    key="confirm1"
+    icon="pi pi-exclamation-triangle"
+    message="Are you sure you want to proceed?"
+    [style]="{ width: '350px' }"
+    acceptButtonStyleClass="p-button-text"
+    rejectButtonStyleClass="p-button-text"
+></p-confirmDialog>
+
+<p-dialog header="{{operation}} Bill" [(visible)]="visible" [modal]="true" showEffect="fade" [style]="{ width: '80vw' }" [breakpoints]="{ '960px': '75vw' }">
+    <app-new-edit [billDto]="selectedBill" (newBillChange)="updateBill($event)"></app-new-edit>
+    <ng-template pTemplate="footer">
+        <button pButton icon="pi pi-external-link" class="p-button-outlined" label="Log In"></button>
+        <button pButton icon="pi pi-times" (click)="visible = false" label="Cancel" class="p-button-secondary p-button-text"></button>
+        <button pButton icon="pi pi-check" (click)="saveBill()" label="Save" class="p-button"></button>
+    </ng-template>
+</p-dialog>
+
+
