@@ -60,21 +60,21 @@ export class BillsService {
             .from('vw_bills')
             .select('*');
 
-        bills?.forEach((account) => {
+        bills?.forEach((data) => {
             const uiBill: uiVwBill = {
-                accountpk: account.accountpk,
-                billspk: account.billspk,
-                owner: account.owner,
+                accountpk: data.accountpk,
+                billspk: data.billspk,
+                owner: data.owner,
                 ownerImagePath: '',
-                accountname: account.accountname,
-                transactiondescription: account.transactiondescription,
-                balance: account.balance,
-                chargetype: account.chargetype,
-                payment: account.payment,
-                duedate: account.duedate,
-                billtype: account.billtype,
-                paymenttype: account.paymenttype,
-                isincludedinmonthlypayment: account.isincludedinmonthlypayment
+                accountname: data.accountname,
+                transactiondescription: data.transactiondescription,
+                balance: data.balance,
+                chargetype: data.chargetype,
+                payment: data.payment,
+                duedate: data.duedate,
+                billtype: data.billtype,
+                paymenttype: data.paymenttype,
+                isincludedinmonthlypayment: data.isincludedinmonthlypayment
             }
             //Buffer.from(account.password, 'base64').toString('utf8')
 
@@ -214,6 +214,24 @@ export class BillsService {
             console.log('Error deleting data:', error.message);
         } else {
             console.log('Data deleted successfully:', data);
+        }
+    }
+
+    async updateSqlField(pk: number, sql: string) {
+        const { data, error } = await this.supabase
+            .from('tb_bills')
+            .update({
+                Update: undefined,
+                sql: sql,
+                updatedby: 'UI',
+                updatedon: new Date()
+            })
+            .eq('pk', pk);
+
+        if (error) {
+            console.log('Error updating SQL field:', error.message);
+        } else {
+            console.log('SQL field updated successfully:', data);
         }
     }
 }

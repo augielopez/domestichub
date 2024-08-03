@@ -63,7 +63,7 @@ export class BillsComponent implements OnInit {
         });
         this.setSelection(this.bills);
 
-        this.typeService.getAllTypes();
+        await this.typeService.setAllTypes();
     }
 
     createNewBill(): uiVwBill {

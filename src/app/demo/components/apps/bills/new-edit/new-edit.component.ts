@@ -122,7 +122,7 @@ export class NewEditComponent implements OnInit {
             const account = await this.accountService.getAccount(this.billDto.accountpk);
             this.account = account;
             this.newAccount = account;
-            this.selectedOwnerType = this.ownerTypes.find(f => f.pk === account.ownerpk);
+            this.selectedOwnerType = this.ownerTypes.find(f => f.name === account.owner);
         } catch (error) {
             console.error('Error fetching account:', error);
         }
@@ -174,8 +174,7 @@ export class NewEditComponent implements OnInit {
             pk: 0,
             name: '',
             url: '',
-            ownerpk: 0,
-            loginpk: 0,
+            owner: '',
             updatedby: '',
             updatedon: new Date(),
             createdby: '',

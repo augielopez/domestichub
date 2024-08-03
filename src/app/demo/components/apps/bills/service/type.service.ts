@@ -49,13 +49,19 @@ export class TypeService {
         return this._session
     }
 
-    async getAllTypes() {
+    async setAllTypes() {
         await this.getType('owner', 'Owner');
         await this.getType('type_bill', 'Bill');
         await this.getType('type_bill_frequency', 'Frequency');
         await this.getType('type_bill_priority', 'Priority');
         await this.getType('type_payment', 'Payment');
     }
+
+    async getAllTypes(): Promise<parentType[]> {
+        await this.setAllTypes();
+        return this.allTypesSubject.getValue();
+    }
+
 
     async getType(tableName: string, typeName: string) {
         this.returnType = [];
@@ -89,108 +95,32 @@ export class TypeService {
         this.allTypesSubject.next(this.types);
     }
 
-    async createBill(value: any) {
-        const {data, error} = await this.supabase
-            .from('bill')
-            .insert(
-                {
-                    Insert: undefined,
-                    owner: value.owner,
-                    accountname: value.accountname,
-                    transactiondescription: value.transactiondescription,
-                    balance: value.balance,
-                    chargetype: value.chargetype,
-                    payment: value.payment,
-                    duedate: value.duedate,
-                    billtype: value.billtype,
-                    paymenttype: value.paymenttype,
-                    isincludedinmonthlypayment: value.isincludedinmonthlypayment,
-                    updatedby: 'UI',
-                    updatedon: new Date(),
-                    createdby: 'UI',
-                    createdon: new Date()
+    getOwnerDetails(ownerPk: number): string {
+        this.setAllTypes().then(
+
+        );
+        this.allTypes$.subscribe(data => {
+            const ownerType = data.find(type => type.name === 'Owner');
+            if (ownerType && ownerType.children) {
+                const owner = ownerType.children.find(child => child.pk === ownerPk);
+                return owner ? owner.name : 'Unknown';
+            }
+            return 'Unknown';
+        });
+        return 'Unknown';
+    }
+
+    getLoginDetails(loginPk: number): string {
+        this.getAllTypes().then(data => {
+                const loginType = data.find(type => type.name === 'Login');
+                if (loginType && loginType.children) {
+                    const login = loginType.children.find(child => child.pk === loginPk);
+                    return login ? login.name : 'Unknown';
                 }
-            )
-            .select()
-            .single();
+                return 'Unknown';
+            }
+        );
 
-        if (error) {
-            console.log('Error inserting data:', error.message);
-        } else {
-            console.log('Data inserted successfully:', data);
-        }
-    }
-
-    async getBill(id: any) {
-        let {data: bill, error} = await this.supabase
-            .from('vw_bills')
-            .select('*')
-            .eq('pk', id);
-
-        if (error) {
-            console.log('Error getting data:', error.message);
-        } else {
-            console.log('Data read successfully:', bill);
-        }
-
-        const uibill: uiVwBill = bill![0];
-
-        return uibill;
-    }
-
-    async updateBill(value: any) {
-        const {data, error} = await this.supabase
-            .from('bill')
-            .update({
-                Update: undefined,
-                transactiondescription: value.transactiondescription,
-                balance: value.balance,
-                chargetypefk: value.chargetype,
-                payment: value.payment,
-                duedate: value.duedate,
-                billstypefk: value.billtype,
-                paymenttypefk: value.paymenttype,
-                isIncludedInMonthlyPayment: value.isIncludedInMonthlyPayment,
-                updatedby: 'UI',
-                updatedon: new Date()
-            })
-            .eq('pk', value.billspk);
-
-        if (error) {
-            console.log('Error updating data:', error.message);
-        } else {
-            console.log('Data updated successfully:', data);
-        }
-    }
-
-    async updateIncludeInMonthlyPayment(value: boolean, selectedPk: number) {
-        const {data, error} = await this.supabase
-            .from('bill')
-            .update({
-                Update: undefined,
-                isIncludedInMonthlyPayment: value,
-                updatedby: 'UI',
-                updatedon: new Date()
-            })
-            .eq('pk', selectedPk);
-
-        if (error) {
-            console.log('Error updating data:', error.message);
-        } else {
-            console.log('Data updated successfully:', data);
-        }
-    }
-
-    async deleteBill(selectedPk: number) {
-        const {data, error} = await this.supabase
-            .from('bill')
-            .delete()
-            .eq('pk', selectedPk);
-
-        if (error) {
-            console.log('Error deleting data:', error.message);
-        } else {
-            console.log('Data deleted successfully:', data);
-        }
+        return 'Unknown';
     }
 }

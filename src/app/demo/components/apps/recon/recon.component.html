@@ -1,0 +1,93 @@
+<div *ngIf="loading" class="loading-container">
+    <p-progressSpinner></p-progressSpinner>
+</div>
+<p-toast></p-toast>
+<div class="card" *ngIf="!loading" >
+    <p-table [value]="transactions" [tableStyle]="{'min-width': '50rem'}">
+        <ng-template pTemplate="header" let-columns>
+            <tr>
+                <th>Account Name</th>
+                <th>SQL</th>
+                <th>Transaction Description</th>
+                <th>Transaction Date</th>
+                <th>Due Date</th>
+                <th>Transaction Amount</th>
+                <th>Expected Amount</th>
+                <th>Source</th>
+                <th>Status</th>
+                <th>Password</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-transaction>
+            <tr>
+                <td>{{ transaction.account_name }}</td>
+                <td>
+                    <p-inputGroup>
+                        <input pInputText class="w-12rem"
+                               [(ngModel)]="transaction.sql">
+                        <p-inputGroupAddon>
+                            <ng-container *ngIf="!transaction.loading; else loadingTemplate">
+                                <i class="pi pi-save" style="cursor: pointer;" (click)="updateSql(transaction.billpk, transaction.sql)"></i>
+                            </ng-container>
+                            <ng-template #loadingTemplate>
+                                <i class="pi pi-spin pi-spinner"></i>
+                            </ng-template>
+                        </p-inputGroupAddon>
+                    </p-inputGroup>
+                </td>
+
+                <td>{{ transaction.transaction_desc }}</td>
+                <td>{{ transaction.transaction_date }}</td>
+                <td>{{ transaction.due_date }}</td>
+                <td>{{ transaction.transaction_amount }}</td>
+                <td>{{ transaction.expected_amount }}</td>
+                <td>{{ transaction.source }}</td>
+                <td>
+                    <p-tag [value]="transaction.transaction_desc ? 'paid' : 'unpaid'"  [severity]="getSeverity(transaction.transaction_desc)" />
+                </td>
+                <td>
+                    <p-toast />
+                    <p-button *ngIf="transaction.loginpk > 0" (onClick)="toggleOverlayPanel($event, op, transaction.accountpk)" icon="pi pi-eye" [rounded]="true" [outlined]="true"></p-button>
+                    <p-overlayPanel #op>
+                        <div class="flex flex-column gap-3 w-25rem" *ngIf="account">
+                            <div>
+                                <span class="font-medium text-900 block mb-2">Url</span>
+                                <p-inputGroup>
+                                    <input id="usernamePopup" pInputText value="{{account.url}}" readonly class="w-25rem" #urlInput>
+                                    <p-inputGroupAddon (click)="openUrlInNewTab(urlInput.value)">
+                                        <i class="pi pi-external-link" style="cursor: pointer;"></i>
+                                    </p-inputGroupAddon>
+                                </p-inputGroup>
+                            </div>
+                            <div>
+                                <span class="font-medium text-900 block mb-2">Username</span>
+                                <p-inputGroup>
+                                    <input pInputText value="{{account.username}}" class="w-25rem" #usernameInput>
+                                    <p-inputGroupAddon (click)="copyToClipboard(usernameInput)">
+                                        <i class="pi pi-copy" style="cursor: pointer;"></i>
+                                    </p-inputGroupAddon>
+                                </p-inputGroup>
+                            </div>
+                            <div>
+                                <span class="font-medium text-900 block mb-2">{{passwordHeader}}</span>
+                                <p-inputGroup *ngIf="!isPasswrodDecoded">
+                                    <input pInputText class="w-25rem" (keydown.enter)="showPassword(pinInput, account.password)" #pinInput>
+                                    <p-inputGroupAddon (click)="showPassword(pinInput, account.password)">
+                                        <i class="pi pi-key" style="cursor: pointer;"></i>
+                                    </p-inputGroupAddon>
+                                </p-inputGroup>
+                                <p-inputGroup *ngIf="isPasswrodDecoded">
+                                    <input pInputText value="{{password}}" class="w-25rem" (keydown.enter)="copyToClipboard(passwordInput)" #passwordInput>
+                                    <p-inputGroupAddon (click)="copyToClipboard(passwordInput)">
+                                        <i class="pi pi-copy" style="cursor: pointer;"></i>
+                                    </p-inputGroupAddon>
+                                </p-inputGroup>
+                            </div>
+                        </div>
+                    </p-overlayPanel>
+                </td>
+
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
