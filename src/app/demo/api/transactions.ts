@@ -7,6 +7,7 @@ export interface TransactionDetails {
     transaction_amount: number;
     expected_amount: number;
     source: string;
+    isfixed: boolean;
     accountpk: number;
     ownerpk: number;
     loginpk: number;
@@ -16,4 +17,5 @@ export interface TransactionDetails {
     typefk: number;
     paymenttypefk: number;
     loading?: boolean;
+    isediting: boolean;
 }

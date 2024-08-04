@@ -1,3 +1,4 @@
+<p-toast />
 <div *ngIf="loading" class="loading-container">
     <p-progressSpinner></p-progressSpinner>
 </div>
@@ -6,7 +7,7 @@
     <p-table [value]="transactions" [tableStyle]="{'min-width': '50rem'}">
         <ng-template pTemplate="header" let-columns>
             <tr>
-                <th>Account Name</th>
+                <th>Bill Name</th>
                 <th>SQL</th>
                 <th>Transaction Description</th>
                 <th>Transaction Date</th>
@@ -15,7 +16,7 @@
                 <th>Expected Amount</th>
                 <th>Source</th>
                 <th>Status</th>
-                <th>Password</th>
+                <th>Action</th>
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-transaction>
@@ -35,19 +36,48 @@
                         </p-inputGroupAddon>
                     </p-inputGroup>
                 </td>
-
-                <td>{{ transaction.transaction_desc }}</td>
-                <td>{{ transaction.transaction_date }}</td>
+                <td>
+                    <ng-container *ngIf="transaction.isediting; else viewModeDesc">
+                        <input pInputText [(ngModel)]="transaction.transaction_desc" type="text" style="width: 145px;"/>
+                    </ng-container>
+                    <ng-template #viewModeDesc>{{ transaction.transaction_desc }}</ng-template>
+                </td>
+                <td>
+                    <ng-container *ngIf="transaction.isediting; else viewModeDate">
+                        <p-calendar
+                                [(ngModel)]="transaction.transaction_date"
+                                [iconDisplay]="'input'"
+                                [showIcon]="true"
+                                inputId="icondisplay"/>
+                    </ng-container>
+                    <ng-template #viewModeDate>{{ transaction.transaction_date }}</ng-template>
+                </td>
                 <td>{{ transaction.due_date }}</td>
-                <td>{{ transaction.transaction_amount }}</td>
-                <td>{{ transaction.expected_amount }}</td>
-                <td>{{ transaction.source }}</td>
+                <td>
+                    <ng-container *ngIf="transaction.isediting; else viewModeAmount">
+                        <input pInputText [(ngModel)]="transaction.transaction_amount" type="text" style="width: 73px;" />
+                    </ng-container>
+                    <ng-template #viewModeAmount>{{ transaction.transaction_amount }}</ng-template>
+                </td>
+                <td [ngClass]="{'text-red': transaction.isfixed && transaction.expected_amount * -1 !== transaction.transaction_amount}">
+                    {{ transaction.expected_amount * -1 }}
+                </td>
+                <td>
+                    <ng-container *ngIf="transaction.isediting; else viewModeSource">
+                        <p-dropdown [options]="sourceOptions" [(ngModel)]="transaction.source" placeholder=""></p-dropdown>
+                    </ng-container>
+                    <ng-template #viewModeSource>{{ transaction.source }}</ng-template>
+
+                </td>
                 <td>
                     <p-tag [value]="transaction.transaction_desc ? 'paid' : 'unpaid'"  [severity]="getSeverity(transaction.transaction_desc)" />
                 </td>
                 <td>
-                    <p-toast />
-                    <p-button *ngIf="transaction.loginpk > 0" (onClick)="toggleOverlayPanel($event, op, transaction.accountpk)" icon="pi pi-eye" [rounded]="true" [outlined]="true"></p-button>
+                    <div class="button-container">
+                        <p-button *ngIf="!transaction.isediting && transaction.transaction_desc === null" size="small" icon="pi pi-pencil" (click)="editTransaction(transaction)" [outlined]="true"></p-button>
+                        <p-button *ngIf="transaction.isediting" size="small" icon="pi pi-save" (click)="saveTransaction(transaction)" [outlined]="true"></p-button>
+                        <p-button *ngIf="transaction.loginpk > 0" size="small" (onClick)="toggleOverlayPanel($event, op, transaction.accountpk)" icon="pi pi-eye" [outlined]="true"></p-button>
+                    </div>
                     <p-overlayPanel #op>
                         <div class="flex flex-column gap-3 w-25rem" *ngIf="account">
                             <div>

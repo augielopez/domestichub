@@ -216,22 +216,4 @@ export class BillsService {
             console.log('Data deleted successfully:', data);
         }
     }
-
-    async updateSqlField(pk: number, sql: string) {
-        const { data, error } = await this.supabase
-            .from('tb_bills')
-            .update({
-                Update: undefined,
-                sql: sql,
-                updatedby: 'UI',
-                updatedon: new Date()
-            })
-            .eq('pk', pk);
-
-        if (error) {
-            console.log('Error updating SQL field:', error.message);
-        } else {
-            console.log('SQL field updated successfully:', data);
-        }
-    }
 }

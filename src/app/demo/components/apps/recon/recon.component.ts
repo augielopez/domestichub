@@ -18,6 +18,10 @@ export class ReconComponent implements OnInit{
   passwordHeader = "Enter Pin"
   password = "";
   inputPin: any;
+  sourceOptions: any[] = [
+    { label: 'Manually Entered', value: 'Manually Entered' },
+    { label: 'Deposited', value: 'Deposited' }
+  ];
   account: AccountDto = {
     account_pk: 0,
     account_name: '',
@@ -33,15 +37,50 @@ export class ReconComponent implements OnInit{
   constructor(private reconService: ReconService, private accountService: AccountsService, private messageService: MessageService, private billService: BillsService) {}
 
   ngOnInit() {
-    this.reconService.getReconTransactionDetails().subscribe({
-      next: (data) => {
-        this.transactions = data;
-        this.loading = false;  // Data loaded, stop loading indicator
-      },
-      error: (error) => {
-        console.error('There was an error!', error);
-        this.loading = false;  // Stop loading indicator on error
-      }
+    this.loadTransactions();
+  }
+
+  loadTransactions() {
+    this.loading = true;
+    this.reconService.getTransactionsView().then(data => {
+      data.forEach(trans => {
+        switch (trans.frequencyfk) {
+        case 2:
+          trans.expected_amount = parseFloat((trans.expected_amount / 12).toFixed(2));
+          break;
+        case 3:
+          trans.expected_amount = parseFloat((trans.expected_amount / 4).toFixed(2));
+          trans.due_date += ' (converted into monthly)';
+          break;
+        case 4:
+          trans.expected_amount = parseFloat((trans.expected_amount / 2).toFixed(2));
+          trans.due_date += ' (converted into monthly)';
+          break;
+        case 5:
+          trans.expected_amount = parseFloat((trans.expected_amount * 2).toFixed(2));
+          trans.due_date += ' (converted into monthly)';
+          break;
+        case 6:
+          trans.expected_amount = parseFloat((trans.expected_amount / 6).toFixed(2));
+          trans.due_date += ' (converted into monthly)';
+          break;
+        case 8:
+          trans.expected_amount = parseFloat((trans.expected_amount * 4).toFixed(2));
+          trans.due_date += ' (converted into monthly)';
+          break;
+        default:
+          trans.expected_amount = parseFloat(trans.expected_amount.toFixed(2));
+          break;
+
+
+        }
+
+      })
+      this.transactions = data;
+      this.loading = false;
+    }).catch(error => {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load transactions' });
+      this.loading = false;
     });
   }
 
@@ -119,20 +158,38 @@ export class ReconComponent implements OnInit{
     }
   }
 
-  updateSql(billPk: number, sql: string): void {
-    const transaction = this.transactions.find(t => t.billpk === billPk);
-
+  async updateSql(billpk: number, newSql: string) {
+    const transaction = this.transactions.find(t => t.billpk === billpk);
     if (transaction) {
       transaction.loading = true;
-      this.billService.updateSqlField(billPk, sql)
-          .then(() => {
-            transaction.loading = false;
-            this.messageService.add({severity: 'success', summary: 'Success', detail: 'Saved'});
-          })
-          .catch(error => {
-            transaction.loading = false;
-            console.error('Error updating SQL:', error);
-          });
+      try {
+        await this.reconService.updateTransactionSql(billpk, newSql);
+        // Reload transactions to get the latest data
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'SQL updated successfully' });
+      } catch (error) {
+        transaction.loading = false;
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update SQL' });
+      }
+    }
+  }
+
+  editTransaction(transaction: TransactionDetails) {
+    transaction.isediting = true;
+  }
+
+  async saveTransaction(transaction: TransactionDetails) {
+    transaction.isediting = false;
+    if(transaction.transaction_desc == null || transaction.transaction_amount == null || transaction.transaction_date == null || transaction.source == null){
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Must fill out all fields' });
+      return;
+    }
+    try {
+      await this.reconService.insertManualTransaction(transaction);
+      // Reload transactions to get the latest data
+      this.messageService.add({ severity: 'success', summary: 'Success', detail: 'INSERT into manual transaction' });
+    } catch (error) {
+      transaction.loading = false;
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to INSERT into manual transaction' });
     }
   }
 }

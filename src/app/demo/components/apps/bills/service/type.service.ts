@@ -50,11 +50,11 @@ export class TypeService {
     }
 
     async setAllTypes() {
-        await this.getType('owner', 'Owner');
-        await this.getType('type_bill', 'Bill');
-        await this.getType('type_bill_frequency', 'Frequency');
-        await this.getType('type_bill_priority', 'Priority');
-        await this.getType('type_payment', 'Payment');
+        await this.getType('tb_owner', 'Owner');
+        await this.getType('tb_type_bill', 'Bill');
+        await this.getType('tb_type_bill_frequency', 'Frequency');
+        await this.getType('tb_type_bill_priority', 'Priority');
+        await this.getType('tb_type_payment', 'Payment');
     }
 
     async getAllTypes(): Promise<parentType[]> {
