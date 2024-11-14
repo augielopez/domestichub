@@ -46,6 +46,16 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/apps/recon']
                     },
                     {
+                        label: 'Product Warranty',
+                        icon: 'pi pi-fw pi-verified',
+                        routerLink: ['/apps/product-warranty']
+                    },
+                    {
+                        label: 'Transactions',
+                        icon: 'pi pi-fw pi-arrow-right-arrow-left',
+                        routerLink: ['/apps/transaction']
+                    },
+                    {
                         label: 'Blog',
                         icon: 'pi pi-fw pi-comment',
                         items: [

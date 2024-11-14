@@ -1,0 +1,126 @@
+<div class="col-12">
+    <div class="card">
+        <h5>Advanced</h5>
+        <div class="p-fluid p-formgrid grid">
+            <div class="field col-12 md:col-6">
+                <label htmlFor="firstname2">Firstname</label>
+                <input pInputText id="firstname2" type="text" />
+            </div>
+            <div class="field col-12 md:col-6">
+                <label htmlFor="lastname2">Lastname</label>
+                <input pInputText id="lastname2" type="text" />
+            </div>
+            <div class="field col-12">
+                <label htmlFor="address">Address</label>
+                <input pInputTextarea id="address" rows="4" />
+            </div>
+            <div class="field col-12 md:col-6">
+                <label htmlFor="city">City</label>
+                <input pInputText id="city" type="text" />
+            </div>
+            <div class="field col-12 md:col-3">
+                <label htmlFor="state">State</label>
+                <p-dropdown ></p-dropdown>
+            </div>
+            <div class="field col-12 md:col-3">
+                <label htmlFor="zip">Zip</label>
+                <input pInputText id="zip" type="text" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Product Warranty Registration</h2>
+
+    <form (ngSubmit)="onSubmit()" #productForm="ngForm">
+        <div class="p-field">
+            <label for="name">Product Name</label>
+            <input id="name" type="text" pInputText [(ngModel)]="product.name" name="name" required>
+        </div>
+
+        <div class="p-field">
+            <label for="category">Category</label>
+            <p-dropdown
+                    [options]="categories"
+                    [(ngModel)]="product.category"
+                    placeholder="Select a category"
+                    optionLabel="label"
+                    name="category"
+                    [required]="true">
+            </p-dropdown>
+        </div>
+
+        <div class="p-field">
+            <label for="warrantyStart">Warranty Start Date</label>
+            <p-calendar
+                    id="warrantyStart"
+                    [(ngModel)]="product.warrantyStart"
+                    name="warrantyStart"
+                    ></p-calendar>
+        </div>
+
+        <div class="p-field">
+            <label for="warrantyPeriod">Warranty Period (months)</label>
+            <input id="warrantyPeriod" type="number" pInputText [(ngModel)]="product.warrantyPeriod" name="warrantyPeriod" required>
+        </div>
+
+        <div class="p-field">
+            <label for="serialNumber">Serial Number</label>
+            <input id="serialNumber" type="text" pInputText [(ngModel)]="product.serialNumber" name="serialNumber" required>
+        </div>
+
+        <div class="p-field">
+            <button pButton type="submit" label="Submit" [disabled]="!productForm.form.valid"></button>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <p-table
+        #dt1
+        [value]="products"
+        dataKey="serialNumber"
+        [rows]="10"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [loading]="loading"
+        [paginator]="true"
+        [globalFilterFields]="['name', 'category', 'serialNumber']">
+
+        <ng-template pTemplate="caption">
+            <div class="flex">
+                <p-button label="Clear" [outlined]="true" icon="pi pi-filter-slash" (onClick)="clear(dt1)" />
+                <span class="p-input-icon-left ml-auto">
+          <i class="pi pi-search"></i>
+          <input pInputText type="text" [(ngModel)]="searchValue"  placeholder="Search keyword" />
+        </span>
+            </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Serial Number</th>
+                <th>Warranty Start</th>
+                <th>Warranty Period (Months)</th>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-product>
+            <tr>
+                <td>{{ product.name }}</td>
+                <td>{{ product.category }}</td>
+                <td>{{ product.serialNumber }}</td>
+                <td>{{ product.warrantyStart | date: 'MM/dd/yyyy' }}</td>
+                <td>{{ product.warrantyPeriod }}</td>
+            </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+            <tr>
+                <td colspan="5">No products found.</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>

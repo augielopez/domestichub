@@ -1,11 +1,43 @@
-<p-toast />
 <div *ngIf="loading" class="loading-container">
     <p-progressSpinner></p-progressSpinner>
 </div>
 <p-toast></p-toast>
-<div class="card" *ngIf="!loading" >
-    <p-table [value]="transactions" [tableStyle]="{'min-width': '50rem'}">
-        <ng-template pTemplate="header" let-columns>
+
+<p-card header="Import Files">
+    <p-toolbar styleClass="mb-4">
+        <ng-template pTemplate="right">
+            <p-fileUpload
+                #fileUpload
+                name="demo[]"
+                (onSelect)="onFileSelect($event)"
+                [multiple]="true"
+                accept=".csv, .txt, .xls, .xlsx"
+                [maxFileSize]="1000000"
+                [customUpload]="true"
+                (uploadHandler)="importFiles($event)">
+            <ng-template pTemplate="content">
+                <ul *ngIf="uploadedFiles">
+                    <li *ngFor="let file of uploadedFiles">
+                        {{ file.name }} - {{ file.size }} bytes
+                    </li>
+                </ul>
+            </ng-template>
+            </p-fileUpload>
+
+        </ng-template>
+    </p-toolbar>
+</p-card>
+
+<!-- Monthly Bills Section -->
+<p-card header="Monthly Bills" *ngIf="!loading">
+    <!-- Reusable structure for monthly and non-monthly transactions -->
+    <p-toolbar styleClass="mb-4">
+        <button pButton pRipple label="Save Recon" icon="pi pi-check" class="p-button-info" (click)="saveReconHistory()"></button>
+    </p-toolbar>
+
+    <p-table [value]="monthly" [tableStyle]="{'min-width': '50rem'}">
+        <!-- Table structure -->
+        <ng-template pTemplate="header">
             <tr>
                 <th>Bill Name</th>
                 <th>SQL</th>
@@ -20,104 +52,36 @@
             </tr>
         </ng-template>
         <ng-template pTemplate="body" let-transaction>
+            <!-- Transaction details -->
             <tr>
                 <td>{{ transaction.account_name }}</td>
                 <td>
                     <p-inputGroup>
-                        <input pInputText class="w-12rem"
-                               [(ngModel)]="transaction.sql">
+                        <input pInputText class="w-12rem" [(ngModel)]="transaction.sql">
                         <p-inputGroupAddon>
-                            <ng-container *ngIf="!transaction.loading; else loadingTemplate">
-                                <i class="pi pi-save" style="cursor: pointer;" (click)="updateSql(transaction.billpk, transaction.sql)"></i>
-                            </ng-container>
-                            <ng-template #loadingTemplate>
-                                <i class="pi pi-spin pi-spinner"></i>
-                            </ng-template>
+                            <i class="pi pi-save" style="cursor: pointer;" (click)="updateSql(transaction.billpk, transaction.sql)"></i>
                         </p-inputGroupAddon>
                     </p-inputGroup>
                 </td>
-                <td>
-                    <ng-container *ngIf="transaction.isediting; else viewModeDesc">
-                        <input pInputText [(ngModel)]="transaction.transaction_desc" type="text" style="width: 145px;"/>
-                    </ng-container>
-                    <ng-template #viewModeDesc>{{ transaction.transaction_desc }}</ng-template>
-                </td>
-                <td>
-                    <ng-container *ngIf="transaction.isediting; else viewModeDate">
-                        <p-calendar
-                                [(ngModel)]="transaction.transaction_date"
-                                [iconDisplay]="'input'"
-                                [showIcon]="true"
-                                inputId="icondisplay"/>
-                    </ng-container>
-                    <ng-template #viewModeDate>{{ transaction.transaction_date }}</ng-template>
-                </td>
+                <!-- Other fields -->
+                <td>{{ transaction.transaction_desc }}</td>
+                <td>{{ transaction.transaction_date }}</td>
                 <td>{{ transaction.due_date }}</td>
+                <td>{{ transaction.transaction_amount }}</td>
+                <td>{{ transaction.expected_amount * -1 }}</td>
+                <td>{{ transaction.source }}</td>
+                <td><p-tag [value]="transaction.transaction_desc ? 'paid' : 'unpaid'" [severity]="getSeverity(transaction.transaction_desc)" /></td>
                 <td>
-                    <ng-container *ngIf="transaction.isediting; else viewModeAmount">
-                        <input pInputText [(ngModel)]="transaction.transaction_amount" type="text" style="width: 73px;" />
-                    </ng-container>
-                    <ng-template #viewModeAmount>{{ transaction.transaction_amount }}</ng-template>
+                    <p-button size="small" icon="pi pi-pencil" (click)="editTransaction(transaction)" [outlined]="true"></p-button>
                 </td>
-                <td [ngClass]="{'text-red': transaction.isfixed && transaction.expected_amount * -1 !== transaction.transaction_amount}">
-                    {{ transaction.expected_amount * -1 }}
-                </td>
-                <td>
-                    <ng-container *ngIf="transaction.isediting; else viewModeSource">
-                        <p-dropdown [options]="sourceOptions" [(ngModel)]="transaction.source" placeholder=""></p-dropdown>
-                    </ng-container>
-                    <ng-template #viewModeSource>{{ transaction.source }}</ng-template>
-
-                </td>
-                <td>
-                    <p-tag [value]="transaction.transaction_desc ? 'paid' : 'unpaid'"  [severity]="getSeverity(transaction.transaction_desc)" />
-                </td>
-                <td>
-                    <div class="button-container">
-                        <p-button *ngIf="!transaction.isediting && transaction.transaction_desc === null" size="small" icon="pi pi-pencil" (click)="editTransaction(transaction)" [outlined]="true"></p-button>
-                        <p-button *ngIf="transaction.isediting" size="small" icon="pi pi-save" (click)="saveTransaction(transaction)" [outlined]="true"></p-button>
-                        <p-button *ngIf="transaction.loginpk > 0" size="small" (onClick)="toggleOverlayPanel($event, op, transaction.accountpk)" icon="pi pi-eye" [outlined]="true"></p-button>
-                    </div>
-                    <p-overlayPanel #op>
-                        <div class="flex flex-column gap-3 w-25rem" *ngIf="account">
-                            <div>
-                                <span class="font-medium text-900 block mb-2">Url</span>
-                                <p-inputGroup>
-                                    <input id="usernamePopup" pInputText value="{{account.url}}" readonly class="w-25rem" #urlInput>
-                                    <p-inputGroupAddon (click)="openUrlInNewTab(urlInput.value)">
-                                        <i class="pi pi-external-link" style="cursor: pointer;"></i>
-                                    </p-inputGroupAddon>
-                                </p-inputGroup>
-                            </div>
-                            <div>
-                                <span class="font-medium text-900 block mb-2">Username</span>
-                                <p-inputGroup>
-                                    <input pInputText value="{{account.username}}" class="w-25rem" #usernameInput>
-                                    <p-inputGroupAddon (click)="copyToClipboard(usernameInput)">
-                                        <i class="pi pi-copy" style="cursor: pointer;"></i>
-                                    </p-inputGroupAddon>
-                                </p-inputGroup>
-                            </div>
-                            <div>
-                                <span class="font-medium text-900 block mb-2">{{passwordHeader}}</span>
-                                <p-inputGroup *ngIf="!isPasswrodDecoded">
-                                    <input pInputText class="w-25rem" (keydown.enter)="showPassword(pinInput, account.password)" #pinInput>
-                                    <p-inputGroupAddon (click)="showPassword(pinInput, account.password)">
-                                        <i class="pi pi-key" style="cursor: pointer;"></i>
-                                    </p-inputGroupAddon>
-                                </p-inputGroup>
-                                <p-inputGroup *ngIf="isPasswrodDecoded">
-                                    <input pInputText value="{{password}}" class="w-25rem" (keydown.enter)="copyToClipboard(passwordInput)" #passwordInput>
-                                    <p-inputGroupAddon (click)="copyToClipboard(passwordInput)">
-                                        <i class="pi pi-copy" style="cursor: pointer;"></i>
-                                    </p-inputGroupAddon>
-                                </p-inputGroup>
-                            </div>
-                        </div>
-                    </p-overlayPanel>
-                </td>
-
             </tr>
         </ng-template>
     </p-table>
-</div>
+</p-card>
+
+<!-- Non-Monthly Bills Section -->
+<p-card header="Non Monthly Bills" *ngIf="!loading">
+    <p-table [value]="nonmonthly" [tableStyle]="{'min-width': '50rem'}">
+        <!-- Table structure similar to Monthly Bills -->
+    </p-table>
+</p-card>

@@ -7,6 +7,7 @@ import { RouterModule } from '@angular/router';
             { path: 'accounts', data: { breadcrumb: 'Accounts' }, loadChildren: () => import('./accounts/account.module').then((m) => m.AccountModule) },
             { path: 'bills', data: { breadcrumb: 'Bills' }, loadChildren: () => import('./bills/bills.app.module').then((m) => m.BillsAppModule) },
             { path: 'recon', data: { breadcrumb: 'Recon' }, loadChildren: () => import('./recon/recon.module').then((m) => m.ReconModule) },
+            { path: 'product-warranty', data: { breadcrumb: 'Product Warranty' }, loadChildren: () => import('./product-warranty/product-warranty.module').then((m) => m.ProductWarrantyModule) },
             { path: 'calendar', data: { breadcrumb: 'Calendar' }, loadChildren: () => import('./calendar/calendar.app.module').then((m) => m.CalendarAppModule) },
             { path: 'tasklist', data: { breadcrumb: 'Task List' }, loadChildren: () => import('./tasklist/tasklist.app.module').then((m) => m.TaskListAppModule) },
             { path: 'chat', data: { breadcrumb: 'Chat' }, loadChildren: () => import('./chat/chat.app.module').then((m) => m.ChatAppModule) },
