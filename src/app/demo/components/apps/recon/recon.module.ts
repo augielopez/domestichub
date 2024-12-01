@@ -24,7 +24,7 @@ import {ReconAppRoutingModule} from "./recon.app-routing.module";
 import {TagModule} from "primeng/tag";
 import {MultiSelectModule} from "primeng/multiselect";
 import { InputTextModule } from 'primeng/inputtext';
-import {AccountsService} from "../accounts/accounts.service";
+import {AccountsService} from "../accounts/services/accounts.service";
 import {ProgressSpinnerModule} from "primeng/progressspinner";
 import {CardModule} from "primeng/card";
 import {SplitButtonModule} from "primeng/splitbutton";

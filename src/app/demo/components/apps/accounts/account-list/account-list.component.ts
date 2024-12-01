@@ -1,34 +1,37 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Table } from 'primeng/table';
-import {AccountModel, AccountDto} from "./models/account.model";
-import {TypeService} from "../bills/service/type.service";
-import {parentType} from "../bills/models/bill";
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {AccountDto} from "../models/account.model";
+import {parentType} from "../../bills/models/bill";
+import {AccountsService} from "../services/accounts.service";
+import {TypeService} from "../../bills/service/type.service";
 import {ConfirmationService, MessageService} from "primeng/api";
-import {AccountsService} from "./services/accounts.service";
-
+import {Table} from "primeng/table";
 
 @Component({
-  selector: 'app-accounts',
-  templateUrl: './accounts.component.html',
-  styleUrl: './accounts.component.scss'
+  selector: 'app-account-list',
+  templateUrl: './account-list.component.html',
+  styleUrls: ['./account-list.component.scss']
 })
-export class AccountsComponent implements OnInit {
-  accounts: AccountDto[] = [];
+export class AccountListComponent implements OnInit {
+  accounts: AccountDto[] = []; // Data for accounts table
+  selectedAccounts: any[] = []; // Selected rows in the table
+  showPasswordButton: boolean = true; // Control visibility of the password button
+  title = "Accounts";
   loading: boolean = true;
-
-  members = [
-    { name: 'Amy Elsner', image: 'amyelsner.png', email: 'amy@email.com', role: 'Owner' },
-    { name: 'Bernardo Dominic', image: 'bernardodominic.png', email: 'bernardo@email.com', role: 'Editor' },
-    { name: 'Ioni Bowcher', image: 'ionibowcher.png', email: 'ioni@email.com', role: 'Viewer' }
-  ];
-
-  @ViewChild('filter') filter!: ElementRef;
+  productDialog: boolean = false;
+  submitted: boolean = false; // To check if the form is submitted
 
   types: parentType[] = [];
   isPasswrodDecoded = true;
   passwordHeader = "Enter Pin"
   password = "";
   inputPin: any;
+  accountsColumns = [
+    { field: 'account_name', header: 'Account Name', width: '15rem', filterable: true },
+    { field: 'url', header: 'URL', width: '20rem', filterable: true },
+    { field: 'owner_name', header: 'Owner Name', width: '15rem', filterable: true },
+    { field: 'username', header: 'Username', width: '15rem', filterable: true },
+    { field: 'is_bill', header: 'Is Bill', width: '8rem', filterable: true }
+  ];
 
   constructor(private accountsService: AccountsService, private typeService: TypeService, private confirmationService: ConfirmationService, private messageService: MessageService) {}
 
@@ -40,13 +43,38 @@ export class AccountsComponent implements OnInit {
     });
   }
 
+  onAccountSelected(account: any): void {
+    this.messageService.add({ severity: 'info', summary: 'Selected', detail: `Selected Account: ${account.accountName}` });
+  }
+
+  onAccountUnselected(account: any): void {
+    this.messageService.add({ severity: 'warn', summary: 'Unselected', detail: `Unselected Account: ${account.accountName}` });
+  }
+
+  handleDialogAction(event: { item: any | null; isEdit: boolean }): void {
+    if (event.isEdit) {
+      console.log('Editing Account:', event.item);
+      // Logic to open a dialog with account details for editing
+    } else {
+      console.log('Adding New Account');
+      // Logic to open a dialog with an empty form for a new account
+    }
+  }
+
+  deleteAccount(account: any): void {
+    this.accounts = this.accounts.filter(a => a.account_pk !== account.account_pk); // Remove account from data
+    this.messageService.add({ severity: 'success', summary: 'Deleted', detail: `Deleted Account: ${account.accountName}` });
+  }
+
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
 
-  clear(table: Table) {
-    table.clear();
-    this.filter.nativeElement.value = '';
+  // Open New Account Dialog
+  selectedAccount: any;
+  openNewAccount() {
+    this.submitted = false;
+    this.productDialog = true;
   }
 
   toggleOverlayPanel(event: Event, overlayPanel: any): void {
@@ -136,5 +164,9 @@ export class AccountsComponent implements OnInit {
         life: 3000
       });
     }
+  }
+
+  handleFormSubmit($event: AccountDto) {
+
   }
 }

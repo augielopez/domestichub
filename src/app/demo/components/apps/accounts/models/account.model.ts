@@ -1,6 +1,6 @@
-import {Entity} from "../../models/entity";
+import {Entity} from "../../../models/entity";
 
-export interface Account extends Entity {
+export interface AccountModel extends Entity {
     name: string;
     url: string;
     owner: string;
@@ -15,6 +15,7 @@ export interface AccountDto {
     login_pk: number;
     username: string;
     password: string;
+    is_bill: boolean;
 }
 
 

@@ -222,7 +222,7 @@
                                         </ng-template>
                                     </p-autoComplete>
                                     <div class="flex align-items-center my-3 gap-3">
-                                        <input class="w-8" type="text" pInputText [(ngModel)]="selectedAccount ? selectedAccount.accountNo : accountNumber" placeholder="Enter Account No" />
+                                        <input class="w-8" type="text" pInputText [(ngModel)]="selectedAccount ? selectedAccount.accountNo : accountNumber" placeholder="Enter AccountModel No" />
                                         <p-inputNumber styleClass="w-4" [(ngModel)]="amount" inputId="currency-us" mode="currency" placeholder="$00.00" currency="USD" locale="en-US"></p-inputNumber>
                                     </div>
                                     <button pButton pRipple icon="pi pi-send" type="button" label="Send" class="p-button-outlined w-full" (click)="confirm1(selectedAccount.name ? selectedAccount.name : selectedAccount, amount)"></button>
@@ -316,7 +316,7 @@
                                 Action
                                 <p-sortIcon field="action"></p-sortIcon>
                             </th>
-                            <th style="min-width: 10rem" class="white-space-nowrap">Account&User No</th>
+                            <th style="min-width: 10rem" class="white-space-nowrap">AccountModel&User No</th>
                             <th pSortableColumn="amount" style="min-width: 10rem" class="white-space-nowrap">
                                 Amount
                                 <p-sortIcon field="amount"></p-sortIcon>

@@ -7,7 +7,7 @@ import {Bill, uiVwBill} from "./models/bill";
 import { Router } from "@angular/router";
 import { Table } from "primeng/table";
 import { TypeService } from "./service/type.service";
-import {Account} from "../accounts/account";
+import {AccountModel} from "../accounts/models/account.model";
 
 @Component({
     selector: 'app-bills',

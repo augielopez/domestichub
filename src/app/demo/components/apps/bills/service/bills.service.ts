@@ -133,6 +133,23 @@ export class BillsService {
         return dbbill;
     }
 
+    async getBillByAccountId(id: any) {
+        let {data: bill, error} = await this.supabase
+            .from('tb_bills')
+            .select('*')
+            .eq('accountfk', id);
+
+        if (error) {
+            console.log('Error getting data:', error.message);
+        } else {
+            console.log('Data read successfully:', bill);
+        }
+
+        const dbbill: Bill = bill![0];
+
+        return dbbill;
+    }
+
     async getBillDto(id: any) {
         let {data: bill, error} = await this.supabase
             .from('vw_bills')

@@ -1,0 +1,14 @@
+<app-datatable
+        [data]="accounts"
+        [columns]="accountsColumns"
+        [globalFilterFields]="['account_name', 'url', 'owner_name', 'username']"
+        [selectedData]="selectedAccounts"
+        [displayField]="'account_name'"
+        [showActions]="true"
+        [showPasswordButton]="showPasswordButton"
+        [title] = "title"
+        (rowSelected)="onAccountSelected($event)"
+        (rowUnselected)="onAccountUnselected($event)"
+        (dialogAction)="handleDialogAction($event)"
+        (deleteAction)="deleteAccount($event)">
+</app-datatable>

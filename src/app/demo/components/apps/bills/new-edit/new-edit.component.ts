@@ -5,9 +5,9 @@ import { BillsService } from "../service/bills.service";
 import { DbTypesService } from "../../../../../db/db.types.service";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { TypeService } from "../service/type.service";
-import { Account } from "../../accounts/account";
-import { AccountsService } from "../../accounts/accounts.service";
+import { AccountModel } from "../../accounts/models/account.model";
 import { DropdownChangeEvent } from "primeng/dropdown";
+import {AccountsService} from "../../accounts/services/accounts.service";
 
 @Component({
     selector: 'app-new-edit',
@@ -30,8 +30,8 @@ export class NewEditComponent implements OnInit {
     bill: Bill = this.createNewBill();
     newBill: Bill = this.createNewBill();
     newItem: any;
-    account: Account = this.createNewAccount();
-    newAccount: Account = this.createNewAccount();
+    account: AccountModel = this.createNewAccount();
+    newAccount: AccountModel = this.createNewAccount();
     types: parentType[] = [];
     ownerTypes: childType[] = [];
     selectedOwnerType: childType | undefined;
@@ -75,7 +75,6 @@ export class NewEditComponent implements OnInit {
 
     async ngOnChanges(changes: SimpleChanges): Promise<void> {
         if (changes['billDto'] && changes['billDto'].currentValue.accountpk !== '') {
-            await this.fetchAccount();
             await this.fetchBill();
         }
     }
@@ -115,17 +114,6 @@ export class NewEditComponent implements OnInit {
             uniqueItems.add(item.pk);
             return !isDuplicate;
         });
-    }
-
-    async fetchAccount() {
-        try {
-            const account = await this.accountService.getAccount(this.billDto.accountpk);
-            this.account = account;
-            this.newAccount = account;
-            this.selectedOwnerType = this.ownerTypes.find(f => f.name === account.owner);
-        } catch (error) {
-            console.error('Error fetching account:', error);
-        }
     }
 
     async fetchBill() {
@@ -169,7 +157,7 @@ export class NewEditComponent implements OnInit {
         };
     }
 
-    createNewAccount(): Account {
+    createNewAccount(): AccountModel {
         return {
             pk: 0,
             name: '',

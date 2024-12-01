@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -15,25 +15,34 @@ import { RatingModule } from 'primeng/rating';
 import {AccountAppRoutingModule} from "./account.app-routing.module";
 import {AccountsComponent} from "./accounts.component";
 import {ConfirmationService, MessageService} from "primeng/api";
-import {AccountsService} from "./accounts.service";
 import { DialogModule } from 'primeng/dialog';
 import {ConfirmPopupModule} from "primeng/confirmpopup";
 import {OverlayPanelModule} from "primeng/overlaypanel";
 import {InputGroupModule} from "primeng/inputgroup";
 import {InputGroupAddonModule} from "primeng/inputgroupaddon";
 import {ChipsModule} from "primeng/chips";
+import {AccountsService} from "./services/accounts.service";
+import {AccountListComponent} from "./account-list/account-list.component";
+import {AccountFormComponent} from "./account-form/account-form.component";
+import {CheckboxModule} from "primeng/checkbox";
+import {ConfirmDialogModule} from "primeng/confirmdialog";
+import {ToolbarModule} from "primeng/toolbar";
+import {FileUploadModule} from "primeng/fileupload";
+import {DataTableComponent} from "../../shared/datatable/datatable.component";
+
 
 @NgModule({
     imports: [CommonModule,
         AccountAppRoutingModule,
-        FormsModule,
         TableModule,
         RatingModule,
+        FormsModule,            // Add FormsModule here
+        ReactiveFormsModule,     // Add ReactiveFormsModule here
+        DialogModule,             // PrimeNG DialogModule if not already imported
         ButtonModule,
         SliderModule,
         InputTextModule,
         ToggleButtonModule,
-        DialogModule,
         RippleModule,
         MultiSelectModule,
         DropdownModule,
@@ -43,8 +52,8 @@ import {ChipsModule} from "primeng/chips";
         OverlayPanelModule,
         InputGroupModule,
         InputGroupAddonModule,
-        ChipsModule],
-  declarations: [AccountsComponent],
+        ChipsModule, CheckboxModule, ConfirmDialogModule, ToolbarModule, FileUploadModule],
+    declarations: [AccountListComponent, AccountFormComponent, AccountsComponent, DataTableComponent],
   providers: [AccountsService, MessageService, ConfirmationService],
 })
 export class AccountModule { }

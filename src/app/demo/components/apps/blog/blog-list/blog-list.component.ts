@@ -7,7 +7,7 @@ import { Blog } from 'src/app/demo/api/blog';
 })
 export class BlogListComponent {
     sortOptions: SelectItem[] = [
-        { label: 'Most Shared', value: 'share' },
+        { label: 'Most shared', value: 'share' },
         { label: 'Most Commented', value: 'comment' }
     ];
 
