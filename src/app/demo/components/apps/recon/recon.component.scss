@@ -6,3 +6,16 @@
   display: flex;
   gap: 5px; /* Adjust the gap between buttons as needed */
 }
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.color-circle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}

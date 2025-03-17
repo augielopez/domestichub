@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Table } from 'primeng/table';
-import {AccountModel, AccountDto} from "./models/account.model";
+import {AccountModel, VwAccount} from "./models/account.model";
 import {TypeService} from "../bills/service/type.service";
 import {parentType} from "../bills/models/bill";
 import {ConfirmationService, MessageService} from "primeng/api";
@@ -13,7 +13,7 @@ import {AccountsService} from "./services/accounts.service";
   styleUrl: './accounts.component.scss'
 })
 export class AccountsComponent implements OnInit {
-  accounts: AccountDto[] = [];
+  accounts: VwAccount[] = [];
   loading: boolean = true;
 
   members = [

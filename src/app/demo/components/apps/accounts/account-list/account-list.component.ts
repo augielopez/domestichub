@@ -1,10 +1,12 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
-import {AccountDto} from "../models/account.model";
 import {parentType} from "../../bills/models/bill";
 import {AccountsService} from "../services/accounts.service";
 import {TypeService} from "../../bills/service/type.service";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {Table} from "primeng/table";
+import {VwAccount} from "../models/account.model";
+import {ToolbarConfig} from "../../../shared/models/toolbar-config";
+import {BehaviorSubject} from "rxjs";
 
 @Component({
   selector: 'app-account-list',
@@ -12,7 +14,8 @@ import {Table} from "primeng/table";
   styleUrls: ['./account-list.component.scss']
 })
 export class AccountListComponent implements OnInit {
-  accounts: AccountDto[] = []; // Data for accounts table
+  accounts: VwAccount[] = []; // Data for accounts table
+  accounts$: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
   selectedAccounts: any[] = []; // Selected rows in the table
   showPasswordButton: boolean = true; // Control visibility of the password button
   title = "Accounts";
@@ -20,26 +23,72 @@ export class AccountListComponent implements OnInit {
   productDialog: boolean = false;
   submitted: boolean = false; // To check if the form is submitted
 
+
   types: parentType[] = [];
   isPasswrodDecoded = true;
   passwordHeader = "Enter Pin"
   password = "";
   inputPin: any;
   accountsColumns = [
-    { field: 'account_name', header: 'Account Name', width: '15rem', filterable: true },
-    { field: 'url', header: 'URL', width: '20rem', filterable: true },
-    { field: 'owner_name', header: 'Owner Name', width: '15rem', filterable: true },
-    { field: 'username', header: 'Username', width: '15rem', filterable: true },
-    { field: 'is_bill', header: 'Is Bill', width: '8rem', filterable: true }
+    { field: 'accountName', header: 'Account Name', width: '15rem', filterable: true },
+    { field: 'ownerName', header: 'Owner Name', width: '15rem', filterable: true },
+    { field: 'isBill', header: 'Has Bill', width: '8rem', filterable: true },
+    { field: 'hasactivebill', header: 'Is Bill Active', width: '8rem', filterable: true}
   ];
+
+  toolbarConfig: ToolbarConfig = {
+    buttons: [
+      {
+        label: 'New',
+        icon: 'pi pi-plus',
+        position: 'left',
+        severity: 'info',
+        visible: true,
+        type: 'button',
+        action: () => this.showDialog(null, false)
+      },
+      {
+        label: 'Delete',
+        icon: 'pi pi-trash',
+        position: 'right',
+        severity: 'danger',
+        visible: true,
+        type: 'button',
+        action: () => this.deleteMultipleSelected()
+      },
+      {
+        label: 'Separator',
+        position: 'right',
+        severity: 'info',
+        visible: false,
+        type: 'fileUpload'
+      },
+      {
+        label: 'Import',
+        position: 'right',
+        severity: 'info',
+        visible: false,
+        type: 'fileUpload'
+      },
+      {
+        label: 'Export',
+        icon: 'pi pi-upload',
+        position: 'right',
+        severity: 'help',
+        visible: false,
+        type: 'button',
+        action: () => this.exportData()
+      }
+    ]
+  };
 
   constructor(private accountsService: AccountsService, private typeService: TypeService, private confirmationService: ConfirmationService, private messageService: MessageService) {}
 
   async ngOnInit() {
-
     this.accountsService.getAccounts().then((accounts) => {
       this.accounts = accounts;
       this.loading = false;
+      this.accounts$.next(accounts);
     });
   }
 
@@ -62,7 +111,8 @@ export class AccountListComponent implements OnInit {
   }
 
   deleteAccount(account: any): void {
-    this.accounts = this.accounts.filter(a => a.account_pk !== account.account_pk); // Remove account from data
+    this.accounts = this.accounts.filter(a => a.accountpk !== account.account_pk); // Remove account from data
+    this.accounts$.next(this.accounts); // Emit updated accounts
     this.messageService.add({ severity: 'success', summary: 'Deleted', detail: `Deleted Account: ${account.accountName}` });
   }
 
@@ -166,7 +216,19 @@ export class AccountListComponent implements OnInit {
     }
   }
 
-  handleFormSubmit($event: AccountDto) {
+  handleFormSubmit($event: VwAccount) {
 
+  }
+
+  private showDialog(param: any, b: boolean) {
+    return undefined;
+  }
+
+  private deleteMultipleSelected() {
+    return undefined;
+  }
+
+  private exportData() {
+    return undefined;
   }
 }

@@ -1,0 +1,173 @@
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <div class="flex justify-content-between align-items-center mb-3">
+                <h5>Job Applications</h5>
+                <p>Total Applications: {{ jobs.length }}</p>
+                <button pButton label="Add Job" icon="pi pi-plus" (click)="openDialog()"></button>
+            </div>
+
+            <p-table #dt [value]="jobs" dataKey="pk" responsiveLayout="scroll"
+                     [paginator]="true" [rows]="10" [expandedRowKeys]="expandedRows">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Company</th>
+                        <th>Job Title</th>
+                        <th>Source</th>
+                        <th>Status</th>
+                        <th>Applied Date</th>
+                        <th>Follow Up Date</th>
+                        <th>Interview Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-job let-expanded="expanded">
+                    <tr>
+                        <td>{{ job.company_name }}</td>
+                        <td>{{ job.job_title }}</td>
+                        <td>
+                            {{ job.job_source }}
+                            <a *ngIf="job.job_posting_link"
+                               [href]="job.job_posting_link"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               class="ml-2">
+                                <i class="pi pi-external-link"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <p-tag [severity]="getStatusSeverity(job.application_status)"
+                                   [value]="job.application_status || 'not applied'"></p-tag>
+                        </td>
+
+                        <td>{{ job.date_applied | date }}</td>
+                        <td>{{ job.follow_up_date }}</td>
+                        <td>{{ job.interview_dates }}</td>
+                        <td>
+                            <button pButton icon="pi pi-pencil" (click)="openDialog(job)" class="p-button-rounded p-button-text"></button>
+                            <button pButton icon="pi pi-trash" (click)="deleteJob(job.pk)" class="p-button-rounded p-button-text"></button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<!-- Job Application Form Modal -->
+<p-dialog [(visible)]="displayDialog" [modal]="true" [closable]="true" [header]="dialogTitle" [style]="{ width: '60vw' }">
+    <form (ngSubmit)="saveJob()" #jobForm="ngForm">
+        <div class="p-fluid p-formgrid grid">
+
+            <div class="field col-12 md:col-6">
+                <label for="company_name">Company Name</label>
+                <input id="company_name" type="text" pInputText [(ngModel)]="selectedJob.company_name" name="company_name" required>
+            </div>
+
+            <div class="field col-12 md:col-6">
+                <label for="job_title">Job Title</label>
+                <input id="job_title" type="text" pInputText [(ngModel)]="selectedJob.job_title" name="job_title" required>
+            </div>
+
+            <div class="field col-12 md:col-6">
+                <label for="job_location">Job Location</label>
+                <input id="job_location" type="text" pInputText [(ngModel)]="selectedJob.job_location" name="job_location">
+            </div>
+
+            <div class="field col-12 md:col-6">
+                <label for="job_posting_link">Job Posting Link</label>
+                <input id="job_posting_link" type="url" pInputText [(ngModel)]="selectedJob.job_posting_link" name="job_posting_link">
+            </div>
+
+            <div class="field col-12 md:col-6">
+                <label for="job_source">Job Source</label>
+                <input id="job_source" type="text" pInputText [(ngModel)]="selectedJob.job_source" name="job_source">
+            </div>
+
+            <div class="field col-12 md:col-6">
+                <label for="application_status">Application Status</label>
+                <p-dropdown id="application_status" [options]="statusOptions" [(ngModel)]="selectedJob.application_status" name="application_status"></p-dropdown>
+            </div>
+
+            <div class="field col-12 md:col-6">
+                <label for="date_applied">Date Applied</label>
+                <p-calendar id="date_applied" [(ngModel)]="selectedJob.date_applied" name="date_applied" dateFormat="yy-mm-dd"></p-calendar>
+            </div>
+
+            <div class="field col-12">
+                <label for="application_notes" class="block">Application Notes</label>
+                <textarea
+                        id="application_notes"
+                        rows="5"
+                        cols="30"
+                        placeholder="Enter application notes..."
+                        [(ngModel)]="selectedJob.application_notes"
+                        name="application_notes"
+                        pInputTextarea
+                        class="w-full"
+                ></textarea>
+            </div>
+
+            <div class="field col-12 md:col-6">
+                <label for="follow_up">Follow Up Date</label>
+                <p-calendar id="follow_up" [(ngModel)]="selectedJob.follow_up_date" name="follow_up" dateFormat="yy-mm-dd"></p-calendar>
+            </div>
+
+            <div class="field col-12 md:col-6">
+                <label for="interview_date">Interview Date</label>
+                <p-calendar id="interview_date" [(ngModel)]="selectedJob.interview_dates" name="interview_date" dateFormat="yy-mm-dd"></p-calendar>
+            </div>
+
+            <div class="field col-12 md:col-6">
+                <label for="offer_received">Offer Received?</label>
+                <p-dropdown id="offer_received" [options]="booleanOptions" [(ngModel)]="selectedJob.offer_received" name="offer_received"></p-dropdown>
+            </div>
+
+            <div class="field col-12 md:col-6">
+                <label for="salary_offered">Salary Offered</label>
+                <input id="salary_offered" type="number" pInputText [(ngModel)]="selectedJob.salary_offered" name="salary_offered">
+            </div>
+
+            <div class="field col-12">
+                <label for="additional_perks" class="block">Additional Perks</label>
+                <textarea
+                        id="additional_perks"
+                        rows="5"
+                        cols="30"
+                        name="additional_perks"
+                        placeholder="Enter additional perks notes..."
+                        [(ngModel)]="selectedJob.additional_perks"
+                        name="additional_perks"
+                        pInputTextarea
+                        class="w-full"
+                ></textarea>
+            </div>
+
+            <div class="field col-12 md:col-6">
+                <label for="job_accepted">Job Accepted?</label>
+                <p-dropdown id="job_accepted" [options]="booleanOptions" [(ngModel)]="selectedJob.job_accepted" name="job_accepted"></p-dropdown>
+            </div>
+
+            <div class="field col-12">
+                <label for="reason_for_declining" class="block">Reason for Declining</label>
+                <textarea
+                        id="reason_for_declining"
+                        rows="5"
+                        cols="30"
+                        placeholder="Enter reason for declining notes..."
+                        [(ngModel)]="selectedJob.reason_for_declining"
+                        name="reason_for_declining"
+                        pInputTextarea
+                        class="w-full"
+                ></textarea>
+            </div>
+
+        </div>
+
+        <div class="p-dialog-footer">
+            <button pButton label="Cancel" icon="pi pi-times" (click)="displayDialog = false" class="p-button-text"></button>
+            <button pButton label="Save" icon="pi pi-check" type="submit"></button>
+        </div>
+    </form>
+</p-dialog>

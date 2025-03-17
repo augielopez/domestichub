@@ -1,0 +1,82 @@
+<div class="card">
+    <h5 class="mt-2">Account Information</h5>
+
+        <div class="col-12 p-2">
+
+            <div class="grid" style="margin: 0px">
+                <div class="md:col-6">
+                    <label for="account-name" class="mr-2">Account Name</label>
+                    <input pInputText id="account-name" type="text" style="width: 100%" />
+                </div>
+
+                <div class="md:col-6">
+                    <label for="account-owner" class="mr-2">Account Owner</label>
+                    <input pInputText id="account-owner" type="text" style="width: 100%"/>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-12 p-2">
+            <div class="grid" style="margin: 0px">
+                <div class="md:col-4">
+                    <label for="account-url" class="mr-2">Account URL</label>
+                    <input pInputText id="account-url" type="text" style="width: 100%" />
+                </div>
+                <div class="md:col-4">
+                    <label for="user-name" class="mr-2">User Name</label>
+                    <input pInputText id="user-name" type="text" style="width: 100%"/>
+                </div>
+                <div class="md:col-4">
+                    <label for="password" class="mr-2">Password</label>
+                    <input pInputText id="password" type="text" style="width: 100%"/>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-12 p-2">
+            <div class="grid formgrid" >
+                <div class="col-12 md:col-4">
+                    <div class="field-checkbox" style="margin: 0px">
+                        <p-checkbox
+                                name="group1"
+                                [(ngModel)]="isBillEnabled"
+                                (onChange)="toggleBillStep()"
+                                label="Enable Bill Step"
+                                id="has_bill"
+                        ></p-checkbox>
+                        <label for="has_bill">Has Bill</label>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <div class="field-checkbox" style="margin: 0px">
+                        <p-checkbox
+                                name="group1"
+                                value="Is Credit Card"
+
+                                id="is-credit-card"
+                        ></p-checkbox>
+                        <label for="is-credit-card">Is Credit Card</label>
+                    </div>
+                </div>
+                <div class="col-12 md:col-4">
+                    <div class="field-checkbox" style="margin: 0px">
+                        <p-checkbox
+                                name="group1"
+                                value="Has Warranty"
+
+                                id="has-warranty"
+                        ></p-checkbox>
+                        <label for="has-warranty">Has Warranty</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+
+
+
+
+
+

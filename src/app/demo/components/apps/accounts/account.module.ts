@@ -23,12 +23,16 @@ import {InputGroupAddonModule} from "primeng/inputgroupaddon";
 import {ChipsModule} from "primeng/chips";
 import {AccountsService} from "./services/accounts.service";
 import {AccountListComponent} from "./account-list/account-list.component";
-import {AccountFormComponent} from "./account-form/account-form.component";
+import {AccountFormComponent} from "../../shared/account-form/account-form.component";
 import {CheckboxModule} from "primeng/checkbox";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import {ToolbarModule} from "primeng/toolbar";
 import {FileUploadModule} from "primeng/fileupload";
 import {DataTableComponent} from "../../shared/datatable/datatable.component";
+import {MenuModule} from "primeng/menu";
+import {DialogWithStepsComponent} from "../../shared/dialog-with-steps/dialog-with-steps.component";
+import {StepsModule} from "primeng/steps";
+import {TagModule} from "primeng/tag";
 
 
 @NgModule({
@@ -52,8 +56,8 @@ import {DataTableComponent} from "../../shared/datatable/datatable.component";
         OverlayPanelModule,
         InputGroupModule,
         InputGroupAddonModule,
-        ChipsModule, CheckboxModule, ConfirmDialogModule, ToolbarModule, FileUploadModule],
-    declarations: [AccountListComponent, AccountFormComponent, AccountsComponent, DataTableComponent],
+        ChipsModule, CheckboxModule, ConfirmDialogModule, ToolbarModule, FileUploadModule, MenuModule, StepsModule, TagModule],
+    declarations: [AccountListComponent, AccountFormComponent, AccountsComponent, DataTableComponent, DialogWithStepsComponent],
   providers: [AccountsService, MessageService, ConfirmationService],
 })
 export class AccountModule { }

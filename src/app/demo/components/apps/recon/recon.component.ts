@@ -10,21 +10,26 @@ import { ReconService } from './recon.service';
 })
 export class ReconComponent implements OnInit {
   @ViewChild('fileUpload') fileUpload!: FileUpload;
+  dateOptions: { label: string; value: string; color: string }[] = [];
+  selectedDate: string = '';
   uploadedFiles: any[] = [];
   transactions: any[] = [];
+  filteredTransactions: any[] = [];
   monthly: any[] = [];
   nonmonthly: any[] = [];
   loading = false;
 
   constructor(private reconService: ReconService, private messageService: MessageService) {}
 
-  ngOnInit() {
-    this.loadTransactions();
+  async ngOnInit() {
+    await this.loadTransactions();
+    await this.generateDateOptions();
+    await this.onDateChange();
   }
 
-  loadTransactions() {
+  async loadTransactions() {
     this.loading = true;
-    this.reconService.getTransactionsView()
+    await this.reconService.getTransactionsView()
         .then(data => {
           this.monthly = data.filter(t => t.isactive && t.isincludedinmonthlypayment && t.frequencyfk === 1);
           this.nonmonthly = data.filter(t => t.isactive && t.isincludedinmonthlypayment && t.frequencyfk !== 1);
@@ -32,9 +37,78 @@ export class ReconComponent implements OnInit {
           this.loading = false;
         })
         .catch(error => {
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load transactions' });
+          this.messageService.add({severity: 'error', summary: 'Error', detail: 'Failed to load transactions'});
           this.loading = false;
         });
+  }
+
+  generateDateOptions(): void {
+    const startMonth = 7; // July
+    const startYear = 2024;
+
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth() + 1;
+    const currentYear = currentDate.getFullYear();
+
+    let year = startYear;
+    let month = startMonth;
+    const monthColors: { [key: number]: string } = {
+      1: '#C0C0C0',  // January - Silver
+      2: '#FF0000',  // February - Red
+      3: '#008000',  // March - Green
+      4: '#FFC0CB',  // April - Pink
+      5: '#00FFFF',  // May - Aqua
+      6: '#FFFFFF',  // June - White
+      7: '#800080',  // July - Purple
+      8: '#FFFF00',  // August - Yellow
+      9: '#0000FF',  // September - Blue
+      10: '#FFA500', // October - Orange
+      11: '#8B4513', // November - Brown
+      12: '#FFD700', // December - Gold
+    };
+
+    const tempOptions: { label: string; value: string; color: string }[] = [];
+
+    while (year < currentYear || (year === currentYear && month <= currentMonth)) {
+      const formattedMonth = month.toString().padStart(2, '0');
+      const dateStr = `${formattedMonth}/${year}`;
+      tempOptions.push({
+        label: dateStr,
+        value: dateStr,
+        color: monthColors[month] || '#000000' // Default to black if undefined
+      });
+
+      month++;
+      if (month > 12) {
+        month = 1;
+        year++;
+      }
+    }
+
+    // Reverse order so most recent month is at the top
+    this.dateOptions = tempOptions.reverse();
+
+    // Default selection: latest month
+    this.selectedDate = this.dateOptions[0].value;
+  }
+
+  onDateChange(): void {
+    if (!this.selectedDate) return;
+
+    const [selectedMonth, selectedYear] = this.selectedDate.split('/').map(Number); // Convert "mm/yyyy" to numbers
+
+    this.filteredTransactions = this.transactions.filter(t => {
+      const transactionDate = new Date(t.transaction_date); // Assuming `t.date` is a valid date
+      return transactionDate.getMonth() + 1 === selectedMonth && transactionDate.getFullYear() === selectedYear;
+    });
+
+    this.monthly = this.filteredTransactions
+        .filter(t => t.isactive && t.isincludedinmonthlypayment && t.frequencyfk === 1)
+        .sort((a, b) => a.account_name.localeCompare(b.account_name));
+
+    this.nonmonthly = this.filteredTransactions
+        .filter(t => t.isactive && t.isincludedinmonthlypayment && t.frequencyfk !== 1)
+        .sort((a, b) => a.account_name.localeCompare(b.account_name));
   }
 
   onFileSelect(event: any) {

@@ -1,148 +1,186 @@
-<div class="card">
-    <p-toast></p-toast>
-
-    <p-toolbar styleClass="mb-4 gap-2">
-        <ng-template pTemplate="left">
-            <p-button
-                    severity="success"
-                    label="New"
-                    icon="pi pi-plus"
-                    class="mr-2"
-                    (click)="showDialog(null, false)"/>
-            <p-button
-                    severity="danger"
-                    label="Delete"
-                    icon="pi pi-trash"
-                    (onClick)="deleteMultipleSelected()"
-                    [disabled]="!selectedData || !selectedData.length"/>
-        </ng-template>
-
-        <ng-template pTemplate="right">
-            <p-fileUpload
-                    mode="basic"
-                    accept="image/*"
-                    [maxFileSize]="1000000"
-                    label="Import"
-                    chooseLabel="Import"
-                    class="mr-2 inline-block" />
-            <p-button
-                    severity="help"
-                    label="Export"
-                    icon="pi pi-upload" />
-        </ng-template>
-    </p-toolbar>
-
-    <p-table #dt
-             [value]="data"
-             [(selection)]="selectedData"
-             [paginator]="true"
-             [rows]="10"
-             [showCurrentPageReport]="true"
-             styleClass="p-datatable-gridlines"
-             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-             [rowsPerPageOptions]="[5, 10, 20]"
-             [globalFilterFields]="globalFilterFields"
-             (onRowSelect)="onRowSelect($event)"
-             (onRowUnselect)="onRowUnselect($event)">
-
-        <ng-template pTemplate="caption">
-            <div class="flex align-items-center justify-content-between">
-                <h5 class="m-0">{{title}}</h5>
-                <div class="p-input-icon-left p-input-icon-right">
-                    <i class="pi pi-search"></i>
-                    <input
-                            pInputText
-                            type="text"
-                            [(ngModel)]="searchValue"
-                            (input)="onGlobalFilter(dt, $event)"
-                            placeholder="Search..."
-                    />
-                    <i
-                            *ngIf="searchValue"
-                            class="pi pi-times"
-                            (click)="clear(dt)"
-                            style="cursor: pointer;"
-                    ></i>
-                </div>
-            </div>
-        </ng-template>
-
-        <!-- Dynamic Headers -->
-        <ng-template pTemplate="header">
-            <tr>
-                <th style="width: 4rem">
-                    <p-tableHeaderCheckbox />
-                </th>
-                <th *ngFor="let col of columns" [style.minWidth]="col.width || 'auto'">
+<div class="grid">
+    <div class="col-12">
+        <div class="card">
+            <p-toast></p-toast>
+            <p-table #dt
+                     [value]="data || []"
+                     [(selection)]="selectedData"
+                     [paginator]="true"
+                     [rows]="10"
+                     [showCurrentPageReport]="true"
+                     styleClass="p-datatable-gridlines"
+                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                     [rowsPerPageOptions]="[5, 10, 20]"
+                     [globalFilterFields]="globalFilterFields"
+                     (onRowSelect)="onRowSelect($event)"
+                     (onRowUnselect)="onRowUnselect($event)"
+                     [expandedRowKeys]="expandedRows"
+                     responsiveLayout="scroll"
+                     dataKey="accountpk">
+                <ng-template pTemplate="caption">
                     <div class="flex justify-content-between align-items-center">
-                        {{ col.header }}
-                        <p-columnFilter *ngIf="col.filterable && col.field !== 'is_bill'" [type]="col.filterType || 'text'" [field]="col.field" display="menu" [placeholder]="'Search by ' + col.header"></p-columnFilter>
-                        <p-columnFilter *ngIf="col.filterable && col.field === 'is_bill'"  type="boolean" [field]="col.field" display="menu"></p-columnFilter>
-                    </div>
-                </th>
-                <th *ngIf="showActions" style="min-width: 15rem">Actions</th>
-            </tr>
-        </ng-template>
-
-        <!-- Dynamic Rows -->
-        <ng-template pTemplate="body" let-item>
-            <tr>
-                <td>
-                    <p-tableCheckbox [value]="item" />
-                </td>
-                <td *ngFor="let col of columns">
-                    <img *ngIf="col.field === 'owner_name'" [alt]="item.owner" [src]="'assets/demo/images/avatar/' + item[col.field]+ '.png'"  width="32" style="vertical-align: middle; border-radius: 50%;" />
-                    <span *ngIf="col.field !== 'is_bill'">
-                        {{ item[col.field] }}
-                    </span>
-                    <i *ngIf="col.field === 'is_bill'" class="pi" [ngClass]="{ 'true-icon pi-check-circle text-green-500': item.is_bill, 'false-icon pi-times-circle text-pink-500': !item.is_bill }"></i>
-                </td>
-
-                <td *ngIf="showActions">
-                    <!-- Password Overlay Panel -->
-                    <button type="button" pButton pRipple icon="pi pi-eye" *ngIf="showPasswordButton && item.password" (click)="toggleOverlayPanel($event, op)" pTooltip="Show Password" tooltipPosition="top" class="p-button-rounded p-button-text mr-1"></button>
-
-                    <p-overlayPanel #op>
-                        <div class="flex flex-column gap-3 w-25rem">
-                            <div>
-                                <span class="font-medium text-900 block mb-2">URL</span>
-                                <p-inputGroup>
-                                    <input pInputText [value]="item.url" readonly class="w-25rem" #urlInput>
-                                    <p-inputGroupAddon (click)="openUrlInNewTab(urlInput.value)">
-                                        <i class="pi pi-external-link" style="cursor: pointer;"></i>
-                                    </p-inputGroupAddon>
-                                </p-inputGroup>
-                            </div>
-                            <div>
-                                <span class="font-medium text-900 block mb-2">Username</span>
-                                <p-inputGroup>
-                                    <input pInputText [value]="item.username" readonly class="w-25rem" #usernameInput>
-                                    <p-inputGroupAddon (click)="copyToClipboard(usernameInput)">
-                                        <i class="pi pi-copy" style="cursor: pointer;"></i>
-                                    </p-inputGroupAddon>
-                                </p-inputGroup>
-                            </div>
-                            <div>
-                                <span class="font-medium text-900 block mb-2">{{ passwordHeader }}</span>
-                                <p-inputGroup *ngIf="!isPasswrodDecoded">
-                                    <input pInputText placeholder="Enter PIN" class="w-25rem" #pinInput>
-                                    <p-inputGroupAddon (click)="showPassword(pinInput, item.password)">
-                                        <i class="pi pi-key" style="cursor: pointer;"></i>
-                                    </p-inputGroupAddon>
-                                </p-inputGroup>
-                                <p-inputGroup *ngIf="isPasswrodDecoded">
-                                    <input pInputText [value]="password" readonly class="w-25rem" #passwordInput>
-                                    <p-inputGroupAddon (click)="copyToClipboard(passwordInput)">
-                                        <i class="pi pi-copy" style="cursor: pointer;"></i>
-                                    </p-inputGroupAddon>
-                                </p-inputGroup>
-                            </div>
+                        <!-- Left-aligned content -->
+                        <div class="flex align-items-center">
+                            <h5 class="m-0">{{ title }}</h5>
+                            <p-menu #menu [popup]="true" [model]="menuItems" appendTo="body"></p-menu>
+                            <p-button
+                                    pRipple
+                                    type="button"
+                                    icon="pi pi-cog"
+                                    [rounded]="true"
+                                    [text]="true"
+                                    severity="secondary"
+                                    (click)="menu.toggle($event)">
+                            </p-button>
                         </div>
-                    </p-overlayPanel>
-                    <button type="button" pButton pRipple icon="pi pi-pencil" (click)="showDialog(item, true)" pTooltip="Edit" tooltipPosition="top" class="p-button-rounded p-button-text mr-1"></button>
-                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-text mr-1" (click)="deleteSelected(item)"></button>
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
+
+                        <!-- Right-aligned content -->
+                        <div class="flex align-items-center">
+                            <button
+                                    pButton
+                                    label="Clear"
+                                    class="p-button-outlined mb-2"
+                                    icon="pi pi-filter-slash"
+                                    (click)="clear(dt)"
+                                    style="margin-right: 8px">
+                            </button>
+                            <span class="p-input-icon-left mb-2">
+                            <i class="pi pi-search"></i>
+                            <input  #filter
+                                    pInputText
+                                    type="text"
+                                    [(ngModel)]="searchValue"
+                                    (input)="onGlobalFilter(dt, $event)"
+                                    placeholder="Search Keyword"
+                                    class="w-full">
+                            </span>
+                        </div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th></th>
+                        <th *ngFor="let col of columns" [style.minWidth]="col.width || 'auto'">
+                            <div class="flex justify-content-between align-items-center">
+                                {{ col.header }}
+                                <p-columnFilter *ngIf="col.filterable" [type]="col.filterType || 'text'"
+                                                [field]="col.field" display="menu"></p-columnFilter>
+                            </div>
+                        </th>
+                        <th *ngIf="showActions">Actions</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item let-expanded="expanded">
+                    <tr>
+                        <td>
+                             <p-button [pRowToggler]="item" [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" [text]="true" [badge]="item.recon?.length || 0"/>
+                        </td>
+                        <td *ngFor="let col of columns">
+                            <img *ngIf="col.field === 'ownerName'" [alt]="item.owner" [src]="'assets/demo/images/avatar/' + item[col.field]+ '.png'" width="32" style="vertical-align: middle; border-radius: 50%;" class="mr-2"/>
+                            <span *ngIf="col.field !== 'isBill'">{{ item[col.field] }}</span>
+                            <i *ngIf="col.field === 'isBill'" class="pi" [ngClass]="{ 'true-icon pi-check-circle text-green-500': item.isBill, 'false-icon pi-times-circle text-pink-500': !item.isBill }"></i>
+
+                            <p-tag *ngIf="col.field === 'hasactivebill'"
+                                    [severity]="item.hasActiveBill ? 'success' : 'danger'"
+                                    [value]="item.hasActiveBill ? 'Active' : 'Inactive'">
+                            </p-tag>
+                        </td>
+                        <td *ngIf="showActions">
+                            <button type="button" pButton pRipple icon="pi pi-pencil" (click)="showDialog(item, true)" pTooltip="Edit" tooltipPosition="top" class="p-button-rounded p-button-text mr-1"></button>
+                            <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-text mr-1" (click)="deleteSelected(item)"></button>
+                            <!-- Password Overlay Panel -->
+                            <button type="button" pButton pRipple icon="pi pi-eye" *ngIf="showPasswordButton && item.password" (click)="toggleOverlayPanel($event, op)" pTooltip="Show Password" tooltipPosition="top" class="p-button-rounded p-button-text mr-1"></button>
+                            <p-overlayPanel #op>
+                                <div class="flex flex-column gap-3 w-25rem">
+                                    <div>
+                                        <span class="font-medium text-900 block mb-2">URL</span>
+                                        <p-inputGroup>
+                                            <input pInputText [value]="item.url" readonly class="w-25rem" #urlInput>
+                                            <p-inputGroupAddon (click)="openUrlInNewTab(urlInput.value)">
+                                                <i class="pi pi-external-link" style="cursor: pointer;"></i>
+                                            </p-inputGroupAddon>
+                                        </p-inputGroup>
+                                    </div>
+                                    <div>
+                                        <span class="font-medium text-900 block mb-2">Username</span>
+                                        <p-inputGroup>
+                                            <input pInputText [value]="item.username" readonly class="w-25rem" #usernameInput>
+                                            <p-inputGroupAddon (click)="copyToClipboard(usernameInput)">
+                                                <i class="pi pi-copy" style="cursor: pointer;"></i>
+                                            </p-inputGroupAddon>
+                                        </p-inputGroup>
+                                    </div>
+                                    <div>
+                                        <span class="font-medium text-900 block mb-2">{{ passwordHeader }}</span>
+                                        <p-inputGroup *ngIf="!isPasswrodDecoded">
+                                            <input pInputText placeholder="Enter PIN" class="w-25rem" #pinInput>
+                                            <p-inputGroupAddon (click)="showPassword(pinInput, item.password)">
+                                                <i class="pi pi-key" style="cursor: pointer;"></i>
+                                            </p-inputGroupAddon>
+                                        </p-inputGroup>
+                                        <p-inputGroup *ngIf="isPasswrodDecoded">
+                                            <input pInputText [value]="password" readonly class="w-25rem" #passwordInput>
+                                            <p-inputGroupAddon (click)="copyToClipboard(passwordInput)">
+                                                <i class="pi pi-copy" style="cursor: pointer;"></i>
+                                            </p-inputGroupAddon>
+                                        </p-inputGroup>
+                                    </div>
+                                </div>
+                            </p-overlayPanel>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="rowexpansion" let-account>
+                    <tr>
+                        <td colspan="7">
+                            <div class="p-3">
+                                <p-table [value]="account.recon" dataKey="accountpk" responsiveLayout="scroll">
+                                    <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="transaction_date">Date <p-sortIcon field="transaction_date"></p-sortIcon></th>
+                        <th pSortableColumn="transaction_amount">Amount <p-sortIcon field="transaction_amount"></p-sortIcon></th>
+                        <th pSortableColumn="sql">SQL <p-sortIcon field="sql"></p-sortIcon></th>
+                        <th pSortableColumn="source">Source <p-sortIcon field="source"></p-sortIcon></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-recon>
+                    <tr>
+                        <td>{{ recon.transaction_date | date: 'EEE MMM dd yyyy' }}</td>
+                        <td>{{ recon.transaction_amount | currency : 'USD' }}</td>
+                        <td>{{ recon.sql }}</td>
+                        <td>{{ recon.source }}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="6">There are no orders for this product yet.</td>
+                    </tr>
+                                    </ng-template>
+                                </p-table>
+                            </div>
+                        </td>
+                    </tr>
+            </ng-template>
+        </p-table>
+    </div>
 </div>
+
+<p-dialog
+        [(visible)]="visible"
+        [modal]="true"
+        [closable]="true"
+        [header]="operation + ' Account'"
+        [style]="{ width: '80vw' }"
+        [breakpoints]="{ '960px': '75vw' }"
+        (onHide)="closeDialog()">
+    <div>
+        <p-steps [model]="routeItems" styleClass="mt-5" [readonly]="false"></p-steps>
+    </div>
+    <div>
+        <router-outlet></router-outlet>
+    </div>
+</p-dialog>
+
+
+
+

@@ -2,7 +2,8 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {AccountsService} from "../services/accounts.service";
-import {AccountDto} from "../models/account.model";
+import {VwAccount} from "../models/account.model";
+
 
 @Component({
   selector: 'app-account-form',
@@ -10,8 +11,8 @@ import {AccountDto} from "../models/account.model";
   styleUrl: './account-form.component.scss'
 })
 export class AccountFormComponent implements OnInit {
-  @Input() accountData?: AccountDto;
-  @Output() formSubmitted = new EventEmitter<AccountDto>();
+  @Input() accountData?: VwAccount;
+  @Output() formSubmitted = new EventEmitter<VwAccount>();
   accountForm!: FormGroup;
   isEditMode = false;
 

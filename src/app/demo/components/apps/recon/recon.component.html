@@ -2,10 +2,10 @@
     <p-progressSpinner></p-progressSpinner>
 </div>
 <p-toast></p-toast>
-
-<p-card header="Import Files">
-    <p-toolbar styleClass="mb-4">
-        <ng-template pTemplate="right">
+<div class="grid" *ngIf="!loading">
+    <div class="col-12">
+        <div class="card">
+            <h5>Load Files</h5>
             <p-fileUpload
                 #fileUpload
                 name="demo[]"
@@ -15,73 +15,95 @@
                 [maxFileSize]="1000000"
                 [customUpload]="true"
                 (uploadHandler)="importFiles($event)">
-            <ng-template pTemplate="content">
-                <ul *ngIf="uploadedFiles">
-                    <li *ngFor="let file of uploadedFiles">
-                        {{ file.name }} - {{ file.size }} bytes
-                    </li>
-                </ul>
-            </ng-template>
+                <ng-template pTemplate="content">
+                    <ul *ngIf="uploadedFiles">
+                        <li *ngFor="let file of uploadedFiles">
+                            {{ file.name }} - {{ file.size }} bytes
+                        </li>
+                    </ul>
+                </ng-template>
             </p-fileUpload>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="card">
+            <h5>Monthly Bills</h5>
+              <p-toolbar>
+                <div class="p-toolbar-group-left flex flex-wrap">
+                    <button pButton pRipple label="Save Recon" icon="pi pi-check" class="p-button-info" (click)="saveReconHistory()"></button>
+                </div>
 
-        </ng-template>
-    </p-toolbar>
-</p-card>
+                <div class="p-toolbar-group-right">
+                    <label class="mr-1">Selected Date: </label>
+                    <p-dropdown
+                            [options]="dateOptions"
+                            [(ngModel)]="selectedDate"
+                            (ngModelChange)="onDateChange()"
+                            placeholder="Select a Month"
+                            [showClear]="true"
+                            optionLabel="label"
+                            optionValue="value"
+                            [style]="{ width: '200px' }">
+                        <ng-template let-option pTemplate="item">
+                            <div class="dropdown-item">
+                                <span class="color-circle" [ngStyle]="{ 'background-color': option.color }"></span>
+                                {{ option.label }}
+                            </div>
+                        </ng-template>
+                    </p-dropdown>
+                </div>
+            </p-toolbar>
 
-<!-- Monthly Bills Section -->
-<p-card header="Monthly Bills" *ngIf="!loading">
-    <!-- Reusable structure for monthly and non-monthly transactions -->
-    <p-toolbar styleClass="mb-4">
-        <button pButton pRipple label="Save Recon" icon="pi pi-check" class="p-button-info" (click)="saveReconHistory()"></button>
-    </p-toolbar>
+            <p-table [value]="monthly" [tableStyle]="{'min-width': '50rem'}">
+                <!-- Table structure -->
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>#</th>
+                        <th>Bill Name</th>
+                        <th>SQL</th>
+                        <th>Transaction Description</th>
+                        <th>Transaction Date</th>
+                        <th>Due Date</th>
+                        <th>Transaction Amount</th>
+                        <th>Expected Amount</th>
+                        <th>Source</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-transaction let-i="rowIndex">
+                    <!-- Transaction details -->
+                    <tr>
+                        <td>{{ i + 1 }}</td>
+                        <td>{{ transaction.account_name }}</td>
+                        <td>
+                            <p-inputGroup>
+                                <input pInputText class="w-12rem" [(ngModel)]="transaction.sql">
+                                <p-inputGroupAddon>
+                                    <i class="pi pi-save" style="cursor: pointer;" (click)="updateSql(transaction.billpk, transaction.sql)"></i>
+                                </p-inputGroupAddon>
+                            </p-inputGroup>
+                        </td>
+                        <!-- Other fields -->
+                        <td>{{ transaction.transaction_desc }}</td>
+                        <td>{{ transaction.transaction_date }}</td>
+                        <td>{{ transaction.due_date }}</td>
+                        <td>{{ transaction.transaction_amount }}</td>
+                        <td>{{ transaction.expected_amount * -1 }}</td>
+                        <td>{{ transaction.source }}</td>
+                        <td><p-tag [value]="transaction.transaction_desc ? 'paid' : 'unpaid'" [severity]="getSeverity(transaction.transaction_desc)" /></td>
+                        <td>
+                            <p-button size="small" icon="pi pi-pencil" (click)="editTransaction(transaction)" [outlined]="true"></p-button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+    <div class="col-12" >
+        <div class="card">
+            <h5>Non Monthly Bills</h5>
+        </div>
+    </div>
+</div>
 
-    <p-table [value]="monthly" [tableStyle]="{'min-width': '50rem'}">
-        <!-- Table structure -->
-        <ng-template pTemplate="header">
-            <tr>
-                <th>Bill Name</th>
-                <th>SQL</th>
-                <th>Transaction Description</th>
-                <th>Transaction Date</th>
-                <th>Due Date</th>
-                <th>Transaction Amount</th>
-                <th>Expected Amount</th>
-                <th>Source</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-transaction>
-            <!-- Transaction details -->
-            <tr>
-                <td>{{ transaction.account_name }}</td>
-                <td>
-                    <p-inputGroup>
-                        <input pInputText class="w-12rem" [(ngModel)]="transaction.sql">
-                        <p-inputGroupAddon>
-                            <i class="pi pi-save" style="cursor: pointer;" (click)="updateSql(transaction.billpk, transaction.sql)"></i>
-                        </p-inputGroupAddon>
-                    </p-inputGroup>
-                </td>
-                <!-- Other fields -->
-                <td>{{ transaction.transaction_desc }}</td>
-                <td>{{ transaction.transaction_date }}</td>
-                <td>{{ transaction.due_date }}</td>
-                <td>{{ transaction.transaction_amount }}</td>
-                <td>{{ transaction.expected_amount * -1 }}</td>
-                <td>{{ transaction.source }}</td>
-                <td><p-tag [value]="transaction.transaction_desc ? 'paid' : 'unpaid'" [severity]="getSeverity(transaction.transaction_desc)" /></td>
-                <td>
-                    <p-button size="small" icon="pi pi-pencil" (click)="editTransaction(transaction)" [outlined]="true"></p-button>
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
-</p-card>
-
-<!-- Non-Monthly Bills Section -->
-<p-card header="Non Monthly Bills" *ngIf="!loading">
-    <p-table [value]="nonmonthly" [tableStyle]="{'min-width': '50rem'}">
-        <!-- Table structure similar to Monthly Bills -->
-    </p-table>
-</p-card>

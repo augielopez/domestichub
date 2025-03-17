@@ -10,5 +10,6 @@
         (rowSelected)="onAccountSelected($event)"
         (rowUnselected)="onAccountUnselected($event)"
         (dialogAction)="handleDialogAction($event)"
-        (deleteAction)="deleteAccount($event)">
+        (deleteAction)="deleteAccount($event)"
+        [menuNames]="['New', 'Delete']">
 </app-datatable>

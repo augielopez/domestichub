@@ -53,3 +53,25 @@ export interface childType {
     pk: number;
     name: string;
 }
+
+export interface VwRecon {
+    account_name: string; // Account name
+    sql: string; // SQL statement
+    transaction_desc: string; // Transaction description
+    transaction_date: Date; // Transaction date
+    due_date: string; // Due date (cast to text)
+    transaction_amount: number; // Transaction amount
+    expected_amount: number; // Expected amount (payment * -1)
+    source: string; // Source
+    isfixed: boolean; // Is the transaction fixed
+    accountpk: number; // Account primary key
+    ownerpk: number; // Owner primary key
+    loginpk: number; // Login primary key
+    billpk: number; // Bill primary key
+    priorityfk: number | null; // Priority foreign key
+    frequencyfk: number | null; // Frequency foreign key
+    typefk: number | null; // Type foreign key
+    paymenttypefk: number | null; // Payment type foreign key
+    isincludedinmonthlypayment: boolean; // Is included in monthly payment
+    isactive: boolean; // Is active
+}

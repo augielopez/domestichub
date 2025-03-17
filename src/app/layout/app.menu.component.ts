@@ -51,6 +51,11 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/apps/product-warranty']
                     },
                     {
+                        label: 'Job Applications',
+                        icon: 'pi pi-fw pi-briefcase', // A briefcase represents job-related data
+                        routerLink: ['/apps/job-tracker']
+                    },
+                    {
                         label: 'Transactions',
                         icon: 'pi pi-fw pi-arrow-right-arrow-left',
                         routerLink: ['/apps/transaction']
