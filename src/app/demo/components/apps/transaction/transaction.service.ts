@@ -42,18 +42,38 @@ export class TransactionService {
   }
 
   async getTransactionView(): Promise<any[]> {
-    const { data, error } = await this.supabase
-        .from('v_all_transactions_with_tags')
-        .select('*')
-        .order('date', { ascending: false });
+    const pageSize = 1000;
+    let from = 0;
+    let to = pageSize - 1;
+    let allRows: any[] = [];
+    let more = true;
 
-    if (error) {
-      console.error('Error fetching transaction view:', error);
-      throw error;
+    while (more) {
+      const { data, error } = await this.supabase
+          .from('v_all_transactions_with_tags')
+          .select('*')
+          .order('date', { ascending: false })
+          .range(from, to);
+
+      if (error) {
+        console.error('Error fetching paginated transactions:', error);
+        throw error;
+      }
+
+      if (data) {
+        allRows = [...allRows, ...data];
+        more = data.length === pageSize;
+        from += pageSize;
+        to += pageSize;
+      } else {
+        more = false;
+      }
     }
 
-    return data || [];
+    console.log('All Transactions:', allRows.length);
+    return allRows;
   }
+
 
   async getAllTags(): Promise<any[]> {
     const { data, error } = await this.supabase.from('tags').select('*').order('name', { ascending: true });  // Sort A → Z;

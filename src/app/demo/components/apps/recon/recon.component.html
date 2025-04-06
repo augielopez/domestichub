@@ -78,6 +78,46 @@
     <div class="col-12" >
         <div class="card">
             <h5>Non Monthly Bills</h5>
+            <p-table [value]="nonmonthly" [tableStyle]="{'min-width': '50rem'}">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>#</th>
+                        <th>SQL</th>
+                        <th>Transaction Description</th>
+                        <th>Transaction Date</th>
+                        <th>Due Date</th>
+                        <th>Transaction Amount</th>
+                        <th>Expected Amount</th>
+                        <th>Source</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-transaction let-i="rowIndex">
+                    <tr>
+                        <td>{{ i + 1 }}</td>
+                        <td>
+                            <p-inputGroup>
+                                <input pInputText class="w-12rem" [(ngModel)]="transaction.sql">
+                                <p-inputGroupAddon>
+                                    <i class="pi pi-save" style="cursor: pointer;" (click)="updateSql(transaction.billpk, transaction.sql)"></i>
+                                </p-inputGroupAddon>
+                            </p-inputGroup>
+                        </td>
+                        <td>{{ transaction.transaction_desc }}</td>
+                        <td>{{ transaction.transaction_date }}</td>
+                        <td>{{ transaction.due_date }}</td>
+                        <td>{{ transaction.transaction_amount }}</td>
+                        <td>{{ transaction.expected_amount * -1 }}</td>
+                        <td>{{ transaction.source }}</td>
+                        <td><p-tag [value]="transaction.transaction_desc ? 'paid' : 'unpaid'" [severity]="getSeverity(transaction.transaction_desc)" /></td>
+                        <td>
+                            <p-button size="small" icon="pi pi-pencil" (click)="editTransaction(transaction)" [outlined]="true"></p-button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
         </div>
     </div>
 </div>

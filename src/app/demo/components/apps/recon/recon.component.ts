@@ -100,17 +100,34 @@ export class ReconComponent implements OnInit {
       const start = new Date(year, month - 1, 1);
       const end = new Date(year, month, 0);
 
+      const firstDay = new Date(year, 0, 1);       // Jan 1st
+      const lastDay = new Date(year, 11, 31);      // Dec 31st
+
       const bills = await this.reconService.getBills();
+      const monthlyBills = bills.filter(b => b.frequencyfk === 1);
+      const nonMonthlyBills = bills.filter(b => b.frequencyfk !== 1);
+
       const allTransactions = await this.reconService.getCombinedTransactionsBetween(start, end);
+      const allYearTransactions = await this.reconService.getCombinedTransactionsBetween(firstDay, lastDay);
 
-      this.monthly = bills.map(bill => {
-        const matchedTransactions = allTransactions.find(tx =>
-            this.reconService.matchesTransaction(tx, bill.sql)
-        );
+      this.monthly = monthlyBills.map(bill => {
+        const sql = bill.sql || '';
+        const matchedTransactions = Array.isArray(allTransactions)
+            ? allTransactions.filter((tx: any) => {
+              try {
+                return this.reconService.matchesTransaction(tx, sql);
+              } catch (err) {
+                console.error('Error in matchesTransaction for tx:', tx, err);
+                return false;
+              }
+            })
+            : [];
 
-        const totalAmount = matchedTransactions.reduce(
-            (sum: number, tx: any) => sum + (Number(tx.amount) || 0),
-            0
+        const totalAmount = Number(
+            matchedTransactions.reduce(
+                (sum: number, tx: any) => sum + (Number(tx.amount) || 0),
+                0
+            ).toFixed(2)
         );
 
         const status = matchedTransactions.length === 0
@@ -127,8 +144,54 @@ export class ReconComponent implements OnInit {
         return {
           billpk: bill.pk,
           bill_name: bill.transactiondescription,
-          sql: bill.sql,
-          transaction_desc: hasMultiple ? bill.sql : firstMatch?.description || '',
+          sql: sql,
+          transaction_desc: hasMultiple ? sql : firstMatch?.description || '',
+          transaction_date: hasMultiple ? 'multiple' : firstMatch?.date || '',
+          transaction_id: hasMultiple ? 'multiple' : firstMatch?.id || null,
+          transaction_amount: totalAmount,
+          expected_amount: bill.payment,
+          due_date: this.parseDueDay(bill.duedate),
+          source: matchedTransactions.length > 0 ? 'auto' : '',
+          status,
+        };
+      });
+
+      this.nonmonthly = nonMonthlyBills.map(bill => {
+        const sql = bill.sql || '';
+        const matchedTransactions = Array.isArray(allYearTransactions)
+            ? allYearTransactions.filter((tx: any) => {
+              try {
+                return this.reconService.matchesTransaction(tx, sql);
+              } catch (err) {
+                console.error('Error in matchesTransaction for tx:', tx, err);
+                return false;
+              }
+            })
+            : [];
+
+        const totalAmount = Number(
+            matchedTransactions.reduce(
+                (sum: number, tx: any) => sum + (Number(tx.amount) || 0),
+                0
+            ).toFixed(2)
+        );
+
+        const status = matchedTransactions.length === 0
+            ? 'unpaid'
+            : totalAmount === bill.payment
+                ? 'paid'
+                : totalAmount < bill.payment
+                    ? 'partial'
+                    : 'overpaid';
+
+        const hasMultiple = matchedTransactions.length > 1;
+        const firstMatch = matchedTransactions[0];
+
+        return {
+          billpk: bill.pk,
+          bill_name: bill.transactiondescription,
+          sql: sql,
+          transaction_desc: hasMultiple ? sql : firstMatch?.description || '',
           transaction_date: hasMultiple ? 'multiple' : firstMatch?.date || '',
           transaction_id: hasMultiple ? 'multiple' : firstMatch?.id || null,
           transaction_amount: totalAmount,
@@ -142,9 +205,10 @@ export class ReconComponent implements OnInit {
     } catch (err) {
       console.error('Error during onDateChange:', err);
     } finally {
-      this.loading = false; // ✅ will ALWAYS run
+      this.loading = false;
     }
   }
+
 
   parseDueDay(duedate: string | null | undefined): string | null {
     if (!duedate) return null;
