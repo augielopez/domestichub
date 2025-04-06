@@ -1,1 +1,126 @@
-<p>transaction works!</p>
+<div *ngIf="loading" class="loading-container">
+    <p-progressSpinner></p-progressSpinner>
+</div>
+<p-toast></p-toast>
+<div class="grid" *ngIf="!loading">
+    <div class="col-12">
+        <div class="card">
+            <h5>Load Files</h5>
+            <p-fileUpload
+                #fileUpload
+                name="demo[]"
+                (onSelect)="onFileSelect($event)"
+                [multiple]="true"
+                accept=".csv, .txt, .xls, .xlsx"
+                [maxFileSize]="1000000"
+                [customUpload]="true"
+                (uploadHandler)="processUploadedFiles($event)">
+            </p-fileUpload>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card">
+
+                <p-toolbar>
+                    <div class="p-toolbar-group-left flex flex-wrap">
+                        <h5 class="m-0">Transactions</h5>
+                    </div>
+                    <div class="p-toolbar-group-right">
+                        <p-dropdown
+                                [options]="dateOptions"
+                                [(ngModel)]="selectedDate"
+                                (ngModelChange)="onDateChange()"
+                                placeholder="Select a Month"
+                                [showClear]="true"
+                                optionLabel="label"
+                                optionValue="value"
+                                [style]="{ width: '200px' }">
+                            <ng-template let-option pTemplate="item">
+                                <div class="dropdown-item flex align-items-center">
+                                  <span
+                                          class="color-circle mr-2"
+                                          [ngStyle]="{ 'background-color': option.color }"
+                                          style="width: 12px; height: 12px; border-radius: 50%; display: inline-block;"></span>
+                                    {{ option.label }}
+                                </div>
+                            </ng-template>
+                        </p-dropdown>
+                    </div>
+                </p-toolbar>
+
+            <p-table #dt
+                    [value]="transactions"
+                    [paginator]="true"
+                    [rows]="200"
+                    [sortField]="'date'"
+                    [sortOrder]="-1"
+                    [responsiveLayout]="'scroll'"
+                    [loading]="loading"
+                    dataKey="transaction_id"
+                     [globalFilterFields]="['date', 'account_name', 'bank_name', 'amount', 'description']">
+
+                <!-- Caption for Global Filter -->
+                <ng-template #caption>
+                    <div class="flex">
+                        <input #globalFilter type="text" pInputText (input)="dt.filterGlobal(globalFilter.value, 'contains')" placeholder="Global Search">
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th pSortableColumn="date">Date <p-columnFilter type="date" field="date" display="menu" ariaLabel="Filter by Date"></p-columnFilter><p-sortIcon field="date" /></th>
+                        <th>Account<p-columnFilter type="text" field="account_name" display="menu" ariaLabel="Filter by Account"></p-columnFilter></th>
+                        <th>Bank<p-columnFilter type="text" field="bank_name" display="menu" ariaLabel="Filter by Bank"></p-columnFilter></th>
+                        <th>Amount<p-columnFilter type="text" field="amount" display="menu" ariaLabel="Filter by Amount"></p-columnFilter></th>
+                        <th>Description<p-columnFilter type="text" field="description" display="menu" ariaLabel="Filter by Description"></p-columnFilter></th>
+                        <th>Tags
+                            <p-dropdown
+                                    [options]="allTags"
+                                    [(ngModel)]="selectedTag"
+                                    (ngModelChange)="onTagChange()"
+                                    placeholder="Filter by Tag"
+                                    [showClear]="true"
+                                    optionLabel="name"
+                                    optionValue="id"
+                                    [style]="{ width: '200px', 'margin-right': '5px' }">
+                            </p-dropdown></th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-tx>
+                    <tr>
+                        <td>{{ tx.date | date: 'shortDate' }}</td>
+                        <td>{{ tx.account_name }}</td>
+                        <td>{{ tx.bank_name }}</td>
+                        <td>{{ tx.amount | currency }}</td>
+                        <td>{{ tx.description }}</td>
+                        <td>
+                            <!-- Tag Selector -->
+                            <p-multiSelect
+                                    [options]="allTags"
+                                    [(ngModel)]="tx.editableTags"
+                                    optionLabel="name"
+                                    display="chip"
+                                    class="w-full"
+                                    [maxSelectedLabels]="8"
+                                    placeholder="Tags"
+                                    [style]="{ width: '350px' }"
+                            ></p-multiSelect>
+
+                            <!-- Save Button -->
+                            <button
+                                    pButton
+                                    icon="pi pi-save"
+                                    label="Save"
+                                    class="p-button-success p-button-sm mt-2 ml-2"
+                                    (click)="addTagToTransaction(tx)"
+                                    [disabled]="!tx.editableTags || tx.editableTags.length === 0"
+                            ></button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+        </div>
+    </div>
+</div>

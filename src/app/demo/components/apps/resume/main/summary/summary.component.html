@@ -1,0 +1,21 @@
+<!-- Summary -->
+<p-panel [toggleable]="true" styleClass="custom-panel">
+    <ng-template pTemplate="header">
+        <div class="flex align-items-center gap-2">
+            <span class="font-bold">Objective</span>
+            <button
+                    pButton
+                    icon="pi pi-save"
+                    class="p-button-sm"
+                    style="padding: 0; height: auto"
+                    pTooltip="Save Summary"
+                    (click)="onSaveClick()"
+            ></button>
+        </div>
+    </ng-template>
+    <div class="col-12 field">
+        <label for="summary">Professional Summary</label>
+        <textarea pInputTextarea id="summary" type="text"  [rows]="5" [(ngModel)]="summary.summary_text" style="resize: none"></textarea>
+    </div>
+</p-panel>
+

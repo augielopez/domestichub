@@ -17,14 +17,40 @@ export class AppMenuComponent implements OnInit {
                     {
                         label: 'E-Commerce',
                         icon: 'pi pi-fw pi-home',
-                        routerLink: ['/']
+                        routerLink: ['/e-commerce']
                     },
                     {
                         label: 'Banking',
                         icon: 'pi pi-fw pi-image',
                         routerLink: ['/dashboard-banking']
-                    }
+                    },
+
                 ]
+            },
+            {
+                label: 'Finances',
+                icon: 'pi pi-fw pi-wallet',
+                items: [
+                    {
+                        label: 'Investments',
+                        icon: 'pi pi-chart-line',
+                        routerLink: ['/investments']
+                    },
+                    {
+                        label: 'Bills',
+                        icon: 'pi pi-fw pi-money-bill',
+                        routerLink: ['/apps/bills']
+                    },
+                    {
+                        label: 'Transactions',
+                        icon: 'pi pi-fw pi-arrow-right-arrow-left',
+                        routerLink: ['/apps/transaction']
+                    },
+                    {
+                        label: 'Reconciliation',
+                        icon: 'pi pi-fw pi-sync',
+                        routerLink: ['/apps/recon']
+                    },]
             },
             {
                 label: 'Apps',
@@ -35,16 +61,7 @@ export class AppMenuComponent implements OnInit {
                         icon: 'pi pi-fw pi-id-card',
                         routerLink: ['/apps/accounts']
                     },
-                    {
-                        label: 'Bills',
-                        icon: 'pi pi-fw pi-money-bill',
-                        routerLink: ['/apps/bills']
-                    },
-                    {
-                        label: 'Reconciliation',
-                        icon: 'pi pi-fw pi-sync',
-                        routerLink: ['/apps/recon']
-                    },
+
                     {
                         label: 'Product Warranty',
                         icon: 'pi pi-fw pi-verified',
@@ -56,9 +73,9 @@ export class AppMenuComponent implements OnInit {
                         routerLink: ['/apps/job-tracker']
                     },
                     {
-                        label: 'Transactions',
-                        icon: 'pi pi-fw pi-arrow-right-arrow-left',
-                        routerLink: ['/apps/transaction']
+                        label: 'Resume',
+                        icon: 'pi pi-fw pi-id-card',
+                        routerLink: ['/apps/resume']
                     },
                     {
                         label: 'Blog',

@@ -10,6 +10,7 @@ import { RouterModule } from '@angular/router';
             { path: 'product-warranty', data: { breadcrumb: 'Product Warranty' }, loadChildren: () => import('./product-warranty/product-warranty.module').then((m) => m.ProductWarrantyModule) },
             { path: 'job-tracker', data: { breadcrumb: 'Job Tracker'}, loadChildren: () => import('./job-tracker/job-tracker.module').then((m) => m.JobTrackerModule) },
             { path: 'transaction', data: { breadcrumb: 'Transaction'}, loadChildren: () => import('./transaction/transaction.module').then((m) => m.TransactionModule) },
+            { path: 'resume', data: { breadcrumb: 'Resume'}, loadChildren: () => import('./resume/resume.module').then((m) => m.ResumeModule) },
             { path: 'calendar', data: { breadcrumb: 'Calendar' }, loadChildren: () => import('./calendar/calendar.app.module').then((m) => m.CalendarAppModule) },
             { path: 'tasklist', data: { breadcrumb: 'Task List' }, loadChildren: () => import('./tasklist/tasklist.app.module').then((m) => m.TaskListAppModule) },
             { path: 'chat', data: { breadcrumb: 'Chat' }, loadChildren: () => import('./chat/chat.app.module').then((m) => m.ChatAppModule) },

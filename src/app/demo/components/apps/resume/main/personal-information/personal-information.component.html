@@ -1,0 +1,36 @@
+<!-- Personal Information -->
+<p-panel [toggleable]="true" class="line-height-3 mb-0" styleClass="custom-panel">
+    <ng-template pTemplate="header">
+        <div class="flex align-items-center gap-2">
+            <span class="font-bold">Personal Information</span>
+            <button
+                    pButton
+                    icon="pi pi-save"
+                    class="p-button-sm"
+                    style="padding: 0; height: auto"
+                    pTooltip="Save Personal Info"
+                    (click)="onSaveClick()"
+            ></button>
+        </div>
+    </ng-template>
+    <div class="p-fluid p-formgrid grid">
+        <div class="field col-12 md:col-6">
+            <label htmlFor="name1">Full Name</label>
+            <input pInputText id="name1" [(ngModel)]="personal_info.name" />
+        </div>
+        <div class="field col-12 md:col-6">
+            <label htmlFor="email1">Email</label>
+            <input pInputText id="email1" [(ngModel)]="personal_info.email" />
+        </div>
+    </div>
+    <div class="p-fluid p-formgrid grid">
+        <div class="field col-12 md:col-6">
+            <label htmlFor="linkedin">LinkedIn URL</label>
+            <input pInputText id="linkedin" [(ngModel)]="personal_info.linkedin" />
+        </div>
+        <div class="field col-12 md:col-6">
+            <label htmlFor="github">GitHub URL</label>
+            <input pInputText id="github" [(ngModel)]="personal_info.github" />
+        </div>
+    </div>
+</p-panel>

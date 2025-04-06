@@ -1,0 +1,19 @@
+:host ::ng-deep .custom-panel .p-panel-header {
+  background-color: var(--primary-color);
+  color: var(--primary-color-text);
+  font-weight: bold;
+}
+
+:host ::ng-deep .custom-panel .p-panel-header .p-panel-header-icon {
+  color: var(--primary-color-text); // Make + / - icon match the text
+}
+
+:host ::ng-deep .p-multiselect.p-multiselect-chip .p-multiselect-label {
+  flex-wrap: wrap !important;
+  white-space: normal !important;
+  overflow: hidden;
+  row-gap: 0.25rem; // ✅ adds space between rows
+  display: flex;    // make sure it's flex
+}
+
+

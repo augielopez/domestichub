@@ -1,0 +1,86 @@
+<!-- Education -->
+<p-panel [toggleable]="true" styleClass="custom-panel">
+    <ng-template pTemplate="header">
+        <div class="flex align-items-center gap-2">
+            <span class="font-bold">Education</span>
+            <button
+                    pButton
+                    icon="pi pi-save"
+                    class="p-button-sm"
+                    style="padding: 0; height: auto"
+                    pTooltip="Save Skills"
+                    (click)="onSave()"
+            ></button>
+        </div>
+    </ng-template>
+    <p-accordion [activeIndex]="0">
+        <p-accordionTab *ngFor="let edu of education; let i = index" [header]="edu.school || 'New Education ' + (i + 1)">
+            <div class="p-fluid p-formgrid grid">
+                <div class="field col-12" *ngIf="education.length > 1 && i > 0">
+                    <p-divider align="right" styleClass="custom-dashed-divider"></p-divider>
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label for="school-{{ i }}">School</label>
+                    <input id="school-{{ i }}" pInputText [(ngModel)]="edu.school" placeholder="School" />
+                </div>
+
+                <div class="field col-12 md:col-6">
+                    <label for="degree-{{ i }}">Degree</label>
+                    <input id="degree-{{ i }}" pInputText [(ngModel)]="edu.degree" placeholder="Degree" />
+                </div>
+
+                <div class="field col-12 md:col-4">
+                    <label for="start_year-{{ i }}">Start Year</label>
+                    <p-inputNumber [(ngModel)]="edu.start_year" placeholder="Start Year" [min]="1900" [max]="2099" />
+                </div>
+
+                <div class="field col-12 md:col-4">
+                    <label for="end_year-{{ i }}">End Year</label>
+                    <p-inputNumber [(ngModel)]="edu.end_year" placeholder="End Year" [min]="1900" [max]="2099" />
+                </div>
+
+                <div class="field col-12 md:col-4">
+                    <label for="gpa-{{ i }}">GPA</label>
+                    <p-inputNumber [(ngModel)]="edu.gpa" placeholder="GPA" [minFractionDigits]="1" [maxFractionDigits]="2" />
+                </div>
+
+                <div class="field col-12">
+                    <label for="details-{{ i }}">Details</label>
+                    <textarea pInputTextarea [(ngModel)]="edu.details" placeholder="Any honors, coursework, notes..." rows="2" class="w-full"></textarea>
+                </div>
+
+                <!-- Buttons -->
+                <div class="field col-12 text-right flex gap-2 justify-end">
+                    <p-button
+                            *ngIf="editIndex !== i"
+                            icon="pi pi-pencil"
+                            label="Edit"
+                            styleClass="p-button-secondary p-button-sm"
+                            (click)="editIndex = i"
+                    ></p-button>
+
+                    <p-button
+                            *ngIf="editIndex === i"
+                            icon="pi pi-save"
+                            label="Save"
+                            styleClass="p-button-success p-button-sm"
+                            (click)="saveEducation(i)"
+                    ></p-button>
+
+                    <p-button
+                            icon="pi pi-trash"
+                            label="Remove"
+                            styleClass="p-button-danger p-button-sm"
+                            (click)="removeEducation(i)"
+                    ></p-button>
+                </div>
+            </div>
+        </p-accordionTab>
+    </p-accordion>
+
+    <div class="col-12 flex justify-content-end mt-3">
+        <p-button label="Add Education" icon="pi pi-plus" (click)="addEducation()" styleClass="p-button-sm p-button-warning"></p-button>
+    </div>
+</p-panel>
+

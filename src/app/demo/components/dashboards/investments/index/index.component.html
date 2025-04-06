@@ -1,0 +1,29 @@
+<p-card>
+    <h3>📈 Index Investments</h3>
+
+    <p *ngIf="loading">Loading index prices...</p>
+
+    <p-table *ngIf="!loading" [value]="indexes">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Change (%)</th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-index>
+            <tr>
+                <td>{{ index.symbol }}</td>
+                <td>{{ index.name }}</td>
+                <td>{{ index.price | currency }}</td>
+                <td>
+                    <p-tag
+                            [severity]="index.changesPercentage > 0 ? 'success' : 'danger'"
+                            [value]="(index.changesPercentage | number: '1.2-2') + '%'">
+                    </p-tag>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-card>

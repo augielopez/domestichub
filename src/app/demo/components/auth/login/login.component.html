@@ -13,23 +13,42 @@
                 </svg>
             </a>
             <div class="flex flex-column">
+                <small *ngIf="errorMessage" class="p-error mb-2">{{ errorMessage }}</small>
                 <span class="p-input-icon-left w-full mb-4">
-                    <i class="pi pi-envelope"></i>
-                    <input id="email" type="text" pInputText class="w-full md:w-25rem text-color-secondary surface-50 border-200" placeholder="Email" />
-                </span>
-                <span class="p-input-icon-left w-full mb-4">
-                    <i class="pi pi-lock"></i>
-                    <input id="password" type="password" pInputText class="w-full md:w-25rem text-color-secondary surface-50 border-200" placeholder="Password" />
+                  <i class="pi pi-user"></i>
+                  <input
+                          [(ngModel)]="username"
+                          name="username"
+                          id="username"
+                          type="text"
+                          pInputText
+                          class="w-full md:w-25rem text-color-secondary surface-50 border-200"
+                          placeholder="Username"
+                          required
+                  />
                 </span>
 
-                <button pButton pRipple label="Sign Up" class="w-full mb-4" [routerLink]="['/']"></button>
+                <span class="p-input-icon-left w-full mb-4">
+                  <i class="pi pi-lock"></i>
+                  <input
+                          [(ngModel)]="password"
+                          name="password"
+                          id="password"
+                          type="password"
+                          pInputText
+                          class="w-full md:w-25rem text-color-secondary surface-50 border-200"
+                          placeholder="Password"
+                          required
+                  />
+                </span>
+                <button pButton pRipple label="Sign In" class="w-full mb-4" (click)="login()" (keydown.enter)="login()"></button>
                 <a href="#" class="font-medium text-sm text-300">forget password?</a>
-                <p class="font-medium text-400 m-0 mt-6">Don’t you have an account, <a href="#" class="text-primary cursor-pointer">sign up</a></p>
+                <p class="font-medium text-400 m-0 mt-6">Don’t you have an account, <a [routerLink]="['/auth/register']" class="text-primary cursor-pointer">sign up</a></p>
             </div>
         </div>
         <div class="flex flex-wrap align-items-center pb-8 px-4">
-            <h4 class="m-0 mr-5" style="line-height: 22px">freya</h4>
-            <h6 class="m-0 font-medium text-300" style="line-height: 17px">Copyright Ⓒ PrimeTek Informatics</h6>
+            <h4 class="m-0 mr-5" style="line-height: 22px">domesticHub</h4>
+            <h6 class="m-0 font-medium text-300" style="line-height: 17px">Copyright Ⓒ Lopez Tech</h6>
         </div>
     </div>
 </div>

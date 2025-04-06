@@ -3,7 +3,8 @@ import { ExtraOptions, RouterModule, Routes } from '@angular/router';
 import { AppLayoutComponent } from './layout/app.layout.component';
 
 const routerOptions: ExtraOptions = {
-    anchorScrolling: 'enabled'
+    anchorScrolling: 'enabled',
+    useHash: true
 };
 
 const routes: Routes = [

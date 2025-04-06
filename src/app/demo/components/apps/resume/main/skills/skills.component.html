@@ -1,0 +1,87 @@
+<!-- Skills with Tagging -->
+<p-panel [toggleable]="true" styleClass="custom-panel">
+    <ng-template pTemplate="header">
+        <div class="flex align-items-center gap-2">
+            <span class="font-bold">Skills</span>
+            <button
+                    pButton
+                    icon="pi pi-save"
+                    class="p-button-sm"
+                    style="padding: 0; height: auto"
+                    pTooltip="Save Skills"
+                    (click)="onSave()"
+            ></button>
+        </div>
+    </ng-template>
+    <div class="p-fluid p-formgrid grid">
+        <ng-container>
+            <!-- Skill Name -->
+            <div class="field col-12 md:col-6">
+                <label for="skill">Enter Skill</label>
+                <input id="skill" pInputText [(ngModel)]="skill.name" placeholder="Skill name" />
+            </div>
+
+            <!-- Tags + Save Button -->
+            <div class="field col-12 md:col-6">
+                <label for="tagskills">Tag Skill</label>
+                <div id="tagskills" class="flex gap-2 align-items-center">
+                    <p-multiSelect
+                            [options]="availableTags"
+                            [(ngModel)]="skill.tags"
+                            optionLabel="name"
+                            display="chip"
+                            class="w-full"
+                            [maxSelectedLabels]="8"
+                    ></p-multiSelect>
+
+                    <button
+                            pButton
+                            style="width: auto"
+                            [icon]="isEdit ? 'pi pi-save' : 'pi pi-plus'"
+                            [label]="isEdit ? 'Update' : 'Add'"
+                            class="p-button-success p-button-sm"
+                            (click)="addSkill()"
+                            [pTooltip]="isEdit ? 'Update Skill' : 'Add Skill'"
+                            tooltipPosition="top"
+                    ></button>
+                </div>
+            </div>
+        </ng-container>
+
+        <p-button *ngIf="!showTable" icon="pi pi-plus" styleClass="p-button-outlined p-button-text" label="Show Table" (click)="toggleShowTable()"></p-button>
+    </div>
+
+    <ng-container *ngIf="savedSkills.length > 0 && showTable" >
+        <p-divider align="right">
+            <p-button icon="pi pi-minus" styleClass="p-button-outlined p-button-text" label="Hide Table" (click)="toggleShowTable()"></p-button>
+        </p-divider>
+        <h6>Saved Skills</h6>
+        <p-table [value]="savedSkills" styleClass="p-datatable-striped">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Skill</th>
+                    <th>Tags</th>
+                    <th>Actions</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-skill>
+                <tr>
+                    <td>{{ skill.name }}</td>
+                    <td>
+                        <p-chip
+                                *ngFor="let tag of skill.tags"
+                                label="{{ tag.name }}"
+                                class="mr-1"
+                        ></p-chip>
+                    </td>
+                    <td>
+                        <p-toast></p-toast>
+                        <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text" (click)="editSkill(skill)"></button>
+                        <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-danger p-button-text" (click)="confirm($event, skill)"></button>
+                        <p-confirmPopup key="confirm"></p-confirmPopup>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </ng-container>
+</p-panel>

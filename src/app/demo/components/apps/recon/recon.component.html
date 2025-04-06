@@ -5,31 +5,9 @@
 <div class="grid" *ngIf="!loading">
     <div class="col-12">
         <div class="card">
-            <h5>Load Files</h5>
-            <p-fileUpload
-                #fileUpload
-                name="demo[]"
-                (onSelect)="onFileSelect($event)"
-                [multiple]="true"
-                accept=".csv, .txt, .xls, .xlsx"
-                [maxFileSize]="1000000"
-                [customUpload]="true"
-                (uploadHandler)="importFiles($event)">
-                <ng-template pTemplate="content">
-                    <ul *ngIf="uploadedFiles">
-                        <li *ngFor="let file of uploadedFiles">
-                            {{ file.name }} - {{ file.size }} bytes
-                        </li>
-                    </ul>
-                </ng-template>
-            </p-fileUpload>
-        </div>
-    </div>
-    <div class="col-12">
-        <div class="card">
             <h5>Monthly Bills</h5>
               <p-toolbar>
-                <div class="p-toolbar-group-left flex flex-wrap">
+                <div class="p-toolbar-group-left flex mr-2">
                     <button pButton pRipple label="Save Recon" icon="pi pi-check" class="p-button-info" (click)="saveReconHistory()"></button>
                 </div>
 
@@ -53,13 +31,11 @@
                     </p-dropdown>
                 </div>
             </p-toolbar>
-
             <p-table [value]="monthly" [tableStyle]="{'min-width': '50rem'}">
                 <!-- Table structure -->
                 <ng-template pTemplate="header">
                     <tr>
                         <th>#</th>
-                        <th>Bill Name</th>
                         <th>SQL</th>
                         <th>Transaction Description</th>
                         <th>Transaction Date</th>
@@ -75,7 +51,6 @@
                     <!-- Transaction details -->
                     <tr>
                         <td>{{ i + 1 }}</td>
-                        <td>{{ transaction.account_name }}</td>
                         <td>
                             <p-inputGroup>
                                 <input pInputText class="w-12rem" [(ngModel)]="transaction.sql">

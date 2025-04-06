@@ -1,0 +1,565 @@
+<div class="resume-main-container">
+    <div class="flex align-items-center justify-content-between mb-3">
+        <h2 class="m-0">Main Resume</h2>
+
+        <div class="flex align-items-center gap-2">
+            <p-menu #menu [popup]="true" [model]="menuItems"></p-menu>
+            <button
+                    type="button"
+                    pButton
+                    icon="pi pi-cog"
+                    class="p-button-secondary p-button-text p-button-sm"
+                    (click)="menu.toggle($event)"
+                    pTooltip="Resume Options"
+                    tooltipPosition="top"
+            ></button>
+        </div>
+    </div>
+    <div class="card p-fluid">
+        <app-personal-information [personal_info]="resume.personal_info" (savePersonalInfo)="savePersonalInfoOnly()"></app-personal-information>
+        <app-summary [summary]="resume.summary" (saveSummary)="saveSummaryOnly()"></app-summary>
+        <app-skills [savedSkills]="savedSkills" [availableTags]="availableTags" (updateSkills)="saveSkill($event)"></app-skills>
+        <app-education [education]="resume.education" (educationChange)="resume.education = $event" (add)="addEducation()" (remove)="removeEducation($event)"></app-education>
+
+
+        <!-- Experience with Tagging -->
+        <p-panel header="Work Experience" [toggleable]="true" styleClass="custom-panel">
+            <p-accordion [activeIndex]="0">
+                <p-accordionTab *ngFor="let exp of resume.experience; let i = index" [header]="exp.job_title || 'New Experience ' + (i + 1)">
+                    <div class="p-fluid p-formgrid grid">
+                        <!-- Job Title -->
+                        <div class="field col-12 md:col-6">
+                            <label for="job_title-{{ i }}">Job Title</label>
+                            <input pInputText id="job_title-{{ i }}" [(ngModel)]="exp.job_title" placeholder="Job Title" />
+                        </div>
+
+                        <!-- Company -->
+                        <div class="field col-12 md:col-6">
+                            <label for="company-{{ i }}">Company</label>
+                            <input pInputText id="company-{{ i }}" [(ngModel)]="exp.company" placeholder="Company" />
+                        </div>
+
+                        <!-- Employment Type -->
+                        <div class="field col-12 md:col-4">
+                            <label for="employment_type-{{ i }}">Employment Type</label>
+                            <p-dropdown
+                                    inputId="employment_type-{{ i }}"
+                                    [options]="employmentTypes"
+                                    [(ngModel)]="exp.employment_type"
+                                    placeholder="Select Type"
+                                    optionLabel="label"
+                                    class="w-full"
+                            ></p-dropdown>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="field col-12 md:col-4">
+                            <label for="location-{{ i }}">Location</label>
+                            <input
+                                    pInputText
+                                    id="location-{{ i }}"
+                                    [(ngModel)]="exp.location"
+                                    placeholder="City, State, Country"
+                            />
+                        </div>
+
+                        <!-- Location Type -->
+                        <div class="field col-12 md:col-4">
+                            <label for="location_type-{{ i }}">Location Type</label>
+                            <p-dropdown
+                                    inputId="location_type-{{ i }}"
+                                    [options]="locationTypes"
+                                    [(ngModel)]="exp.location_type"
+                                    placeholder="e.g. Remote"
+                                    optionLabel="label"
+                                    class="w-full"
+                            ></p-dropdown>
+                        </div>
+
+                        <!-- Start Date -->
+                        <div class="field col-12 md:col-6">
+                            <label for="start_date-{{ i }}">Start Date</label>
+                            <p-calendar inputId="start_date-{{ i }}" [(ngModel)]="exp.start_date" placeholder="Start Date" />
+                        </div>
+
+                        <!-- End Date -->
+                        <div class="field col-12 md:col-6">
+                            <label for="end_date-{{ i }}">End Date</label>
+                            <p-calendar inputId="end_date-{{ i }}" [(ngModel)]="exp.end_date" placeholder="End Date" />
+                        </div>
+
+                        <!-- Currently Working Checkbox -->
+                        <div class="field col-12">
+                            <p-checkbox
+                                    inputId="currently_working-{{ i }}"
+                                    [(ngModel)]="exp.is_current"
+                                    [binary]="true"
+                            ></p-checkbox>
+                            <label for="currently_working-{{ i }}" class="ml-2">I am currently working in this role</label>
+                        </div>
+
+                        <!-- Description -->
+ <!--                       <div class="field col-12">
+                            <label for="description-{{ i }}">Description</label>
+                            <textarea
+                                    pInputTextarea
+                                    id="description-{{ i }}"
+                                    [(ngModel)]="exp.description"
+                                    placeholder="Add role responsibilities, tech, impact, etc."
+                                    rows="5"
+                                    class="w-full"
+                            ></textarea>
+                        </div>-->
+
+
+                        <!-- Buttons under job info -->
+                        <div class="field col-12 text-right flex gap-2 justify-end">
+                            <p-button
+                                    icon="pi pi-pencil"
+                                    label="Edit"
+                                    pTooltip="Edit this entry"
+                                    tooltipPosition="top"
+                                    styleClass="p-button-secondary p-button-sm"
+                            ></p-button>
+
+                            <p-button
+                                    icon="pi pi-trash"
+                                    label="Remove"
+                                    pTooltip="Remove this entry"
+                                    tooltipPosition="top"
+                                    styleClass="p-button-danger p-button-sm"
+                                    (click)="removeExperience(i)"
+                            ></p-button>
+                        </div>
+
+                        <!-- Bullet Points -->
+                        <ng-container *ngFor="let bullet of bulletForm; let j = index">
+                            <!-- Bullet Textarea -->
+                            <div class="field col-12 md:col-7">
+                                <label for="bullet-{{ i }}-{{ j }}">Bullet {{ j + 1 }}</label>
+                                <textarea
+                                        pInputTextarea
+                                        id="bullet-{{ i }}-{{ j }}"
+                                        [(ngModel)]="bullet.description"
+                                        placeholder="Bullet point"
+                                        rows="2"
+                                        class="w-full"
+                                ></textarea>
+                            </div>
+
+                            <!-- Tags -->
+                            <div class="field col-12 md:col-5">
+                                <label for="tags-{{ i }}-{{ j }}">Tags</label>
+                                <div class="flex gap-2 align-items-center">
+                                    <p-multiSelect
+                                            id="tags-{{ i }}-{{ j }}"
+                                            [options]="availableTags"
+                                            [(ngModel)]="bullet.tags"
+                                            optionLabel="name"
+                                            placeholder="Tags"
+                                            display="chip"
+                                            class="w-full"
+                                            [maxSelectedLabels]="8"></p-multiSelect>
+                                    <!-- Delete Button -->
+                                    <button
+                                            pButton
+                                            label="Add"
+                                            style="width: auto"
+                                            icon="pi pi-plus"
+                                            class="p-button-sm p-button-success"
+                                            (click)="addExperienceBullet(exp)"
+                                            pTooltip="Add bullet"></button>
+                                </div>
+                            </div>
+                        </ng-container>
+
+                        <!-- Divider -->
+                        <div class="field col-12">
+                            <!-- Divider with Toggle Button -->
+                            <p-divider
+                                    *ngIf="savedBullets.length  > 0"
+                                    align="left"
+                                    styleClass="custom-dashed-divider">
+                                <button
+                                        pButton
+                                        [label]="showBulletTable ? 'Hide Responsibilities / Bullet Points' : 'Show Responsibilities / Bullet Points'"
+                                        [icon]="showBulletTable ? 'pi pi-minus' : 'pi pi-plus'"
+                                        class="p-button-sm p-button-secondary p-button-text"
+                                        (click)="toggleBulletTable()"
+                                ></button>
+                            </p-divider>
+                        </div>
+                        <!-- Bullet Table + Heading (Full Width) -->
+                        <div class="field col-12" *ngIf="savedBullets.length  > 0 && showBulletTable">
+                            <h6 class="mb-2">Saved Bullet Points</h6>
+
+                            <p-table [value]="savedBullets" styleClass="p-datatable-striped p-datatable-sm w-full">
+                                <ng-template pTemplate="header">
+                                    <tr>
+                                        <th class="w-6">Bullet</th>
+                                        <th class="w-4">Tags</th>
+                                        <th class="text-center w-2">Actions</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template pTemplate="body" let-bullet let-j="rowIndex">
+                                    <tr>
+                                        <td>{{ bullet.description }}</td>
+                                        <td>
+                                            <p-chip
+                                                    *ngFor="let tag of bullet.tags"
+                                                    [label]="tag.name"
+                                                    class="mr-1 mb-1"
+                                            ></p-chip>
+                                        </td>
+                                        <td class="text-center">
+                                            <button
+                                                    pButton
+                                                    icon="pi pi-pencil"
+                                                    class="p-button-text p-button-sm"
+                                                    pTooltip="Edit"
+                                            ></button>
+                                            <button
+                                                    pButton
+                                                    icon="pi pi-trash"
+                                                    class="p-button-text p-button-sm p-button-danger"
+                                                    (click)="removeExperienceBullet(i, j)"
+                                                    pTooltip="Delete"
+                                            ></button>
+                                        </td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </div>
+                </p-accordionTab>
+            </p-accordion>
+
+            <!-- Add Experience Button -->
+            <div class="col-12 flex justify-content-end mt-3">
+                <p-button
+                        label="Add Experience"
+                        icon="pi pi-plus"
+                        (click)="addExperience()"
+                        styleClass="p-button-sm p-button-warning"
+                ></p-button>
+            </div>
+        </p-panel>
+
+
+
+        <!-- Projects with Tagging -->
+        <p-panel header="Projects" [toggleable]="true" styleClass="custom-panel">
+            <div class="p-fluid p-formgrid grid">
+                <ng-container *ngFor="let project of resume.projects; let i = index">
+
+                    <!-- Project Name -->
+                    <div class="field col-12 md:col-6">
+                        <label for="project-name-{{ i }}">Project Name</label>
+                        <input id="project-name-{{ i }}" pInputText [(ngModel)]="project.name" placeholder="Project Name" />
+                    </div>
+
+                    <!-- Project URL -->
+                    <div class="field col-12 md:col-6">
+                        <label for="project-url-{{ i }}">Project URL</label>
+                        <input id="project-url-{{ i }}" pInputText [(ngModel)]="project.url" placeholder="Project URL" />
+                    </div>
+
+                    <!-- Description -->
+                    <div class="field col-12">
+                        <label for="project-description-{{ i }}">Description</label>
+                        <textarea
+                                pInputTextarea
+                                id="project-description-{{ i }}"
+                                [(ngModel)]="project.description"
+                                placeholder="Describe the project, your role, results..."
+                                rows="3"
+                                class="w-full"
+                        ></textarea>
+                    </div>
+
+                    <!-- Technologies -->
+                    <div class="field col-12 md:col-6">
+                        <label for="project-tech-{{ i }}">Technologies Used</label>
+                        <p-chips id="project-tech-{{ i }}" [(ngModel)]="project.technologies" placeholder="Technologies Used"></p-chips>
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="field col-12 md:col-6">
+                        <label for="project-tags-{{ i }}">Tags</label>
+                        <p-multiSelect
+                                id="project-tags-{{ i }}"
+                                [options]="availableTags"
+                                [(ngModel)]="project.tags"
+                                optionLabel="tag_name"
+                                placeholder="Tag Project"
+                                display="chip"
+                                class="w-full"
+                        ></p-multiSelect>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="field col-12 text-right flex gap-2 justify-end">
+                        <p-button
+                                icon="pi pi-pencil"
+                                label="Edit"
+                                pTooltip="Edit this entry"
+                                tooltipPosition="top"
+                                styleClass="p-button-secondary p-button-sm"
+                        ></p-button>
+
+                        <p-button
+                                icon="pi pi-trash"
+                                label="Remove"
+                                pTooltip="Remove this entry"
+                                tooltipPosition="top"
+                                styleClass="p-button-danger p-button-sm"
+                                (click)="removeProject(i)"
+                        ></p-button>
+                    </div>
+                </ng-container>
+
+                <!-- Add Button -->
+                <div class="col-12 flex justify-content-end mt-3">
+                    <p-button
+                            label="Add Project"
+                            icon="pi pi-plus"
+                            (click)="addProject()"
+                            styleClass="p-button-sm p-button-warning"
+                    ></p-button>
+                </div>
+            </div>
+        </p-panel>
+
+
+        <!-- Certifications with Tagging -->
+        <p-panel header="Certifications" [toggleable]="true" styleClass="custom-panel">
+            <div class="p-fluid p-formgrid grid">
+                <ng-container *ngFor="let cert of resume.certifications; let i = index">
+
+                    <!-- Certification Name -->
+                    <div class="field col-12 md:col-6">
+                        <label for="certification_name-{{ i }}">Certification Name</label>
+                        <input
+                                id="certification_name-{{ i }}"
+                                pInputText
+                                [(ngModel)]="cert.certification_name"
+                                placeholder="Certification Name"
+                        />
+                    </div>
+
+                    <!-- Issuing Organization -->
+                    <div class="field col-12 md:col-6">
+                        <label for="issuing_org-{{ i }}">Issuing Organization</label>
+                        <input
+                                id="issuing_org-{{ i }}"
+                                pInputText
+                                [(ngModel)]="cert.issuing_organization"
+                                placeholder="Issuing Organization"
+                        />
+                    </div>
+
+                    <!-- Issue Date -->
+                    <div class="field col-12 md:col-6">
+                        <label for="issue_date-{{ i }}">Issue Date</label>
+                        <p-calendar
+                                inputId="issue_date-{{ i }}"
+                                [(ngModel)]="cert.issue_date"
+                                placeholder="Issue Date"
+                        ></p-calendar>
+                    </div>
+
+                    <!-- Expiration Date -->
+                    <div class="field col-12 md:col-6">
+                        <label for="expiration_date-{{ i }}">Expiration Date</label>
+                        <p-calendar
+                                inputId="expiration_date-{{ i }}"
+                                [(ngModel)]="cert.expiration_date"
+                                placeholder="Expiration Date"
+                        ></p-calendar>
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="field col-12">
+                        <label for="tags-{{ i }}">Tags</label>
+                        <p-multiSelect
+                                id="tags-{{ i }}"
+                                [options]="availableTags"
+                                [(ngModel)]="cert.tags"
+                                optionLabel="tag_name"
+                                placeholder="Tag Certification"
+                                display="chip"
+                                class="w-full"
+                        ></p-multiSelect>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="field col-12 text-right flex gap-2 justify-end">
+                        <p-button
+                                icon="pi pi-pencil"
+                                label="Edit"
+                                pTooltip="Edit this entry"
+                                tooltipPosition="top"
+                                styleClass="p-button-secondary p-button-sm"
+                        ></p-button>
+
+                        <p-button
+                                icon="pi pi-trash"
+                                label="Remove"
+                                pTooltip="Remove this entry"
+                                tooltipPosition="top"
+                                styleClass="p-button-danger p-button-sm"
+                                (click)="removeCertification(i)"
+                        ></p-button>
+                    </div>
+                </ng-container>
+
+                <!-- Add Button -->
+                <div class="col-12 flex justify-content-end mt-3">
+                    <p-button
+                            label="Add Certification"
+                            icon="pi pi-plus"
+                            (click)="addCertification()"
+                            styleClass="p-button-sm"
+                    ></p-button>
+                </div>
+            </div>
+        </p-panel>
+
+        <!-- Languages -->
+        <p-panel header="Languages" [toggleable]="true" styleClass="custom-panel">
+            <div class="p-fluid p-formgrid grid">
+                <ng-container *ngFor="let lang of resume.languages; let i = index">
+                    <div class="field col-12 md:col-6">
+                        <label for="language_name-{{ i }}">Language</label>
+                        <input id="language_name-{{ i }}" pInputText [(ngModel)]="lang.language_name" placeholder="e.g. Spanish" />
+                    </div>
+
+                    <div class="field col-12 md:col-6">
+                        <label for="proficiency-{{ i }}">Proficiency</label>
+                        <p-dropdown
+                                inputId="proficiency-{{ i }}"
+                                [options]="proficiencyOptions"
+                                [(ngModel)]="lang.proficiency_level"
+                                optionLabel="label"
+                                placeholder="e.g. Fluent"
+                                class="w-full"
+                        ></p-dropdown>
+                    </div>
+
+                    <div class="field col-12 text-right flex gap-2 justify-end">
+                        <p-button icon="pi pi-pencil" label="Edit" class="p-button-secondary p-button-sm"></p-button>
+                        <p-button
+                                icon="pi pi-trash"
+                                label="Remove"
+                                class="p-button-danger p-button-sm"
+                                (click)="removeLanguage(i)"
+                        ></p-button>
+                    </div>
+                </ng-container>
+
+                <div class="col-12 flex justify-content-end mt-3">
+                    <p-button label="Add Language" icon="pi pi-plus" (click)="addLanguage()" styleClass="p-button-sm"></p-button>
+                </div>
+            </div>
+        </p-panel>
+
+        <!-- References -->
+        <p-panel header="References" [toggleable]="true" styleClass="custom-panel">
+            <div class="p-fluid p-formgrid grid">
+                <ng-container *ngFor="let ref of resume.references; let i = index">
+                    <div class="field col-12 md:col-4">
+                        <label for="reference_name-{{ i }}">Name</label>
+                        <input id="reference_name-{{ i }}" pInputText [(ngModel)]="ref.reference_name" placeholder="Full Name" />
+                    </div>
+
+                    <div class="field col-12 md:col-4">
+                        <label for="relationship-{{ i }}">Relationship</label>
+                        <input id="relationship-{{ i }}" pInputText [(ngModel)]="ref.relationship" placeholder="e.g. Manager" />
+                    </div>
+
+                    <div class="field col-12 md:col-4">
+                        <label for="contact_info-{{ i }}">Contact Info</label>
+                        <input id="contact_info-{{ i }}" pInputText [(ngModel)]="ref.contact_info" placeholder="Phone or Email" />
+                    </div>
+
+                    <!-- Optional Tagging -->
+                    <div class="field col-12">
+                        <label for="ref-tags-{{ i }}">Tags</label>
+                        <p-multiSelect
+                                id="ref-tags-{{ i }}"
+                                [options]="availableTags"
+                                [(ngModel)]="ref.tags"
+                                optionLabel="name"
+                                display="chip"
+                                class="w-full"
+                        ></p-multiSelect>
+                    </div>
+
+                    <div class="field col-12 text-right flex gap-2 justify-end">
+                        <p-button icon="pi pi-pencil" label="Edit" class="p-button-secondary p-button-sm"></p-button>
+                        <p-button
+                                icon="pi pi-trash"
+                                label="Remove"
+                                class="p-button-danger p-button-sm"
+                                (click)="removeReference(i)"
+                        ></p-button>
+                    </div>
+                </ng-container>
+
+                <div class="col-12 flex justify-content-end mt-3">
+                    <p-button label="Add Reference" icon="pi pi-plus" (click)="addReference()" styleClass="p-button-sm"></p-button>
+                </div>
+            </div>
+        </p-panel>
+
+        <!-- Notes -->
+        <p-panel header="Notes" [toggleable]="true" styleClass="custom-panel">
+            <div class="p-fluid p-formgrid grid">
+                <ng-container *ngFor="let note of resume.notes; let i = index">
+                    <div class="field col-12">
+                        <label for="note-{{ i }}">Note</label>
+                        <textarea
+                                id="note-{{ i }}"
+                                pInputTextarea
+                                [(ngModel)]="note.note"
+                                rows="3"
+                                placeholder="Optional notes for internal use"
+                                class="w-full"
+                        ></textarea>
+                    </div>
+
+                    <!-- Optional Tagging -->
+                    <div class="field col-12">
+                        <label for="note-tags-{{ i }}">Tags</label>
+                        <p-multiSelect
+                                id="note-tags-{{ i }}"
+                                [options]="availableTags"
+                                [(ngModel)]="note.tags"
+                                optionLabel="name"
+                                display="chip"
+                                class="w-full"
+                        ></p-multiSelect>
+                    </div>
+
+                    <div class="field col-12 text-right flex gap-2 justify-end">
+                        <p-button icon="pi pi-pencil" label="Edit" class="p-button-secondary p-button-sm"></p-button>
+                        <p-button
+                                icon="pi pi-trash"
+                                label="Remove"
+                                class="p-button-danger p-button-sm"
+                                (click)="removeNote(i)"
+                        ></p-button>
+                    </div>
+                </ng-container>
+
+                <div class="col-12 flex justify-content-end mt-3">
+                    <p-button label="Add Note" icon="pi pi-plus" (click)="addNote()" styleClass="p-button-sm"></p-button>
+                </div>
+            </div>
+        </p-panel>
+
+        <!-- Save Button -->
+        <button pButton class="p-button-info mt-4" label="Save Main Resume" (click)="saveMainResume()"></button>
+    </div>
+</div>
+

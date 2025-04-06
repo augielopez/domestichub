@@ -727,4 +727,78 @@ export class ReconService {
       console.error('Unknown error:', error);
     }
   }
+
+  //NEW METHODS
+  async getBills(): Promise<any[]> {
+    const { data, error } = await this.supabase
+        .from('tb_bills')
+        .select('*')
+        .eq('isactive', true)
+        .order('pk', { ascending: true });
+
+    if (error) throw error;
+    return data ?? [];
+  }
+
+  async getCombinedTransactionsBetween(start: Date, end: Date): Promise<any[]> {
+/*    const { data, error } = await this.supabase
+        .from('combined_transactions')
+        .select('*')
+        .gte('date', start.toISOString())
+        .lte('date', end.toISOString());*/
+
+    const { data, error } = await this.supabase
+        .from('combined_transactions')
+        .select(`
+          *,
+          transaction_tags (
+            tags (
+              name
+            )
+          )
+        `)
+        .gte('date', start.toISOString())
+        .lte('date', end.toISOString());
+
+
+    if (error) throw error;
+    return data ?? [];
+  }
+
+  matchesTransaction2(tx: any, sql: string): boolean {
+    const description = tx.description || '';
+
+    // Try to parse SQL-style: description ILIKE '%keyword%'
+    const sqlMatch = sql.match(/description\s+ILIKE\s+'%(.+)%'/i);
+
+    if (sqlMatch) {
+      const keyword = sqlMatch[1];
+      return new RegExp(keyword, 'i').test(description);
+    }
+
+    // Fallback to raw keyword matching
+    return new RegExp(sql, 'i').test(description);
+  }
+
+  matchesTransaction(tx: any, sql: string): boolean {
+
+    const tagNames = (tx.transaction_tags || [])
+        .map((tt: any) => tt.tags?.name)
+        .filter((name: string | undefined): name is string => !!name);
+
+    // Try to parse SQL-style: tags.name ILIKE '%keyword%'
+    const sqlMatch = sql.match(/tags\.name\s+ILIKE\s+'%(.+)%'/i);
+
+    if (sqlMatch) {
+      const keyword = sqlMatch[1];
+      return tagNames.some((tag: string) => new RegExp(keyword, 'i').test(tag));
+    }
+
+    // Fallback to raw keyword matching
+    return tagNames.some((tag: string) => new RegExp(sql, 'i').test(tag));
+  }
+
+
+
+
 }

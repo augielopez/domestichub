@@ -9,10 +9,9 @@ import { ReconService } from './recon.service';
   styleUrls: ['./recon.component.scss']
 })
 export class ReconComponent implements OnInit {
-  @ViewChild('fileUpload') fileUpload!: FileUpload;
   dateOptions: { label: string; value: string; color: string }[] = [];
   selectedDate: string = '';
-  uploadedFiles: any[] = [];
+  //uploadedFiles: any[] = [];
   transactions: any[] = [];
   filteredTransactions: any[] = [];
   monthly: any[] = [];
@@ -22,13 +21,12 @@ export class ReconComponent implements OnInit {
   constructor(private reconService: ReconService, private messageService: MessageService) {}
 
   async ngOnInit() {
-    await this.loadTransactions();
     await this.generateDateOptions();
     await this.onDateChange();
   }
 
   async loadTransactions() {
-    this.loading = true;
+
     await this.reconService.getTransactionsView()
         .then(data => {
           this.monthly = data.filter(t => t.isactive && t.isincludedinmonthlypayment && t.frequencyfk === 1);
@@ -53,18 +51,10 @@ export class ReconComponent implements OnInit {
     let year = startYear;
     let month = startMonth;
     const monthColors: { [key: number]: string } = {
-      1: '#C0C0C0',  // January - Silver
-      2: '#FF0000',  // February - Red
-      3: '#008000',  // March - Green
-      4: '#FFC0CB',  // April - Pink
-      5: '#00FFFF',  // May - Aqua
-      6: '#FFFFFF',  // June - White
-      7: '#800080',  // July - Purple
-      8: '#FFFF00',  // August - Yellow
-      9: '#0000FF',  // September - Blue
-      10: '#FFA500', // October - Orange
-      11: '#8B4513', // November - Brown
-      12: '#FFD700', // December - Gold
+      1: '#C0C0C0',  2: '#FF0000',  3: '#008000',
+      4: '#FFC0CB',  5: '#00FFFF',  6: '#FFFFFF',
+      7: '#800080',  8: '#FFFF00',  9: '#0000FF',
+      10: '#FFA500', 11: '#8B4513', 12: '#FFD700',
     };
 
     const tempOptions: { label: string; value: string; color: string }[] = [];
@@ -75,7 +65,7 @@ export class ReconComponent implements OnInit {
       tempOptions.push({
         label: dateStr,
         value: dateStr,
-        color: monthColors[month] || '#000000' // Default to black if undefined
+        color: monthColors[month] || '#000000'
       });
 
       month++;
@@ -88,32 +78,94 @@ export class ReconComponent implements OnInit {
     // Reverse order so most recent month is at the top
     this.dateOptions = tempOptions.reverse();
 
-    // Default selection: latest month
-    this.selectedDate = this.dateOptions[0].value;
+    // 🔥 Logic: If the current month isn't over, select the previous one
+    const today = new Date();
+    const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    const isMonthOver = today.getDate() === lastDayOfMonth;
+
+    // Pick the latest (current) or previous month
+    const defaultIndex = isMonthOver ? 0 : 1;
+    this.selectedDate = this.dateOptions[defaultIndex]?.value ?? '';
+
   }
 
-  onDateChange(): void {
-    if (!this.selectedDate) return;
+  async onDateChange() {
+    this.loading = true;
 
-    const [selectedMonth, selectedYear] = this.selectedDate.split('/').map(Number); // Convert "mm/yyyy" to numbers
+    try {
+      const [monthStr, yearStr] = this.selectedDate.split('/');
+      const year = Number(yearStr);
+      const month = Number(monthStr);
 
-    this.filteredTransactions = this.transactions.filter(t => {
-      const transactionDate = new Date(t.transaction_date); // Assuming `t.date` is a valid date
-      return transactionDate.getMonth() + 1 === selectedMonth && transactionDate.getFullYear() === selectedYear;
-    });
+      const start = new Date(year, month - 1, 1);
+      const end = new Date(year, month, 0);
 
-    this.monthly = this.filteredTransactions
-        .filter(t => t.isactive && t.isincludedinmonthlypayment && t.frequencyfk === 1)
-        .sort((a, b) => a.account_name.localeCompare(b.account_name));
+      const bills = await this.reconService.getBills();
+      const allTransactions = await this.reconService.getCombinedTransactionsBetween(start, end);
 
-    this.nonmonthly = this.filteredTransactions
-        .filter(t => t.isactive && t.isincludedinmonthlypayment && t.frequencyfk !== 1)
-        .sort((a, b) => a.account_name.localeCompare(b.account_name));
+      this.monthly = bills.map(bill => {
+        const matchedTransactions = allTransactions.find(tx =>
+            this.reconService.matchesTransaction(tx, bill.sql)
+        );
+
+        const totalAmount = matchedTransactions.reduce(
+            (sum: number, tx: any) => sum + (Number(tx.amount) || 0),
+            0
+        );
+
+        const status = matchedTransactions.length === 0
+            ? 'unpaid'
+            : totalAmount === bill.payment
+                ? 'paid'
+                : totalAmount < bill.payment
+                    ? 'partial'
+                    : 'overpaid';
+
+        const hasMultiple = matchedTransactions.length > 1;
+        const firstMatch = matchedTransactions[0];
+
+        return {
+          billpk: bill.pk,
+          bill_name: bill.transactiondescription,
+          sql: bill.sql,
+          transaction_desc: hasMultiple ? bill.sql : firstMatch?.description || '',
+          transaction_date: hasMultiple ? 'multiple' : firstMatch?.date || '',
+          transaction_id: hasMultiple ? 'multiple' : firstMatch?.id || null,
+          transaction_amount: totalAmount,
+          expected_amount: bill.payment,
+          due_date: this.parseDueDay(bill.duedate),
+          source: matchedTransactions.length > 0 ? 'auto' : '',
+          status,
+        };
+      });
+
+    } catch (err) {
+      console.error('Error during onDateChange:', err);
+    } finally {
+      this.loading = false; // ✅ will ALWAYS run
+    }
   }
 
-  onFileSelect(event: any) {
-    this.uploadedFiles = event.files;
-    console.log('Selected files:', this.uploadedFiles);
+  parseDueDay(duedate: string | null | undefined): string | null {
+    if (!duedate) return null;
+
+    // Try parsing as a full date
+    const parsedDate = new Date(duedate);
+    if (!isNaN(parsedDate.getTime())) {
+      return parsedDate.getDate().toString().padStart(2, '0');
+    }
+
+    // Try extracting a number (like "23rd" → 23)
+    const dayMatch = duedate.match(/\b(\d{1,2})\b/);
+    if (dayMatch) {
+      const day = parseInt(dayMatch[1], 10);
+      if (day >= 1 && day <= 31) {
+        return day.toString().padStart(2, '0');
+      }
+    }
+
+    // Fallback: not a valid date or day
+    return null;
   }
 
   async importFiles(event: any): Promise<void> {
@@ -179,19 +231,13 @@ export class ReconComponent implements OnInit {
   }
 
   updateSql(billpk: number, newSql: string): void {
-    const transaction = this.transactions.find(t => t.billpk === billpk);
-    if (transaction) {
-      transaction.loading = true;
-      this.reconService.updateTransactionSql(billpk, newSql)
-          .then(() => {
-            transaction.loading = false;
-            this.messageService.add({ severity: 'success', summary: 'SQL Updated', detail: 'SQL was successfully updated' });
-          })
-          .catch(() => {
-            transaction.loading = false;
-            this.messageService.add({ severity: 'error', summary: 'Update Failed', detail: 'Failed to update SQL' });
-          });
-    }
+    this.reconService.updateTransactionSql(billpk, newSql)
+        .then(() => {
+          this.messageService.add({ severity: 'success', summary: 'SQL Updated', detail: 'SQL was successfully updated' });
+        })
+        .catch(() => {
+          this.messageService.add({ severity: 'error', summary: 'Update Failed', detail: 'Failed to update SQL' });
+        });
   }
 
   getSeverity(transactionDesc: string | null): string {
@@ -203,8 +249,8 @@ export class ReconComponent implements OnInit {
   }
 
   clearInputs() {
-    this.fileUpload.clear();
-    this.uploadedFiles = [];
+    //this.fileUpload.clear();
+    //this.uploadedFiles = [];
   }
 
   // Newly added method to handle saving the reconciliation history

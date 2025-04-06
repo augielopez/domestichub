@@ -10,6 +10,7 @@ import {DropdownModule} from "primeng/dropdown";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {InputTextModule} from "primeng/inputtext";
 import {CalendarModule} from "primeng/calendar";
+import {InputTextareaModule} from "primeng/inputtextarea";
 
 
 
@@ -29,7 +30,7 @@ import {CalendarModule} from "primeng/calendar";
         ButtonModule, // ✅ Fix for PrimeNG Buttons
         InputTextModule,
         CalendarModule,
-        // ✅ Fix for <input pInputText>
+        InputTextareaModule,
     ]
 })
 export class JobTrackerModule { }
